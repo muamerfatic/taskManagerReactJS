@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Box from "@mui/material/Box";
 import { Typography, Grid, TextField, Button } from "@mui/material";
 import axios from "axios";
@@ -9,35 +9,40 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
-const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "33%",
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
+import UserDataContext from "../../store/userData-context";
+import UpdatedItem from "./UpdatedItem";
+import ErrorUpdateProfileForm from "./ErrorUpdateProfileForm";
+import UpdatingForm from "./UpdatingForm";
+import modalStyle from "../modals/style-modal";
 
 const UpdateProfileForm = (props) => {
-    const [position, setPosition] = useState(props.position);
-    const [birthday, setBirthday] = useState("");
+  const ctxUserData = useContext(UserDataContext);
 
-    // const validatePosition=()
-    
-    const changeHandler = (event) => {
-        setPosition(event.target.value);
-        console.log(position);
-      };
-      
+  const [position, setPosition] = useState(ctxUserData.userPosition);
+  const [birthday, setBirthday] = useState(ctxUserData.userBirthday);
+  const [hasPositionError, setHasPositionError] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  let errorMessage = "Try again later";
+
+  const validatePosition = (argPosition) => {
+    // return argPosition.match("^[A-Za-z]")
+    return /^[A-Za-z\s]*$/.test(argPosition);
+  };
+  //TODO: validate input, set error and loading
+  const changeHandler = (event) => {
+    setPosition(event.target.value);
+  };
   const handleSubmit = async () => {
     try {
+      setIsUpdating(true);
       //TODO: validate inputs...
-      const uid = JSON.parse(localStorage.getItem("userData")).uid;
-
+      if (!validatePosition(position) || position === "") {
+        setHasPositionError(true);
+        throw "Position field can only contain letters and spaces.";
+      }
+      const uid = ctxUserData.userUID;
       const DATE = new Date(birthday);
       const datestring =
         ("0" + (DATE.getMonth() + 1)).slice(-2) +
@@ -45,23 +50,23 @@ const UpdateProfileForm = (props) => {
         ("0" + DATE.getDate()).slice(-2) +
         "/" +
         DATE.getFullYear();
-
-      const response = await axios.patch(
-        myFirebaseUrl + "users/" + uid + ".json",
-        {
-          position,
-          birthday: datestring,
-        }
-      );
-      props.updatePosition(position);
-      props.updateBirthday(datestring);
-      props.closeModalOnSubmit();
+      await axios.patch(myFirebaseUrl + "users/" + uid + ".json", {
+        position: position ? position : "",
+        birthday: datestring ? datestring : "",
+      });
+      setIsUpdating(true);
+      ctxUserData.addPosition(position ? position : "");
+      ctxUserData.addBirthday(datestring ? datestring : "");
+      setIsUpdated(true);
+      // props.closeModalOnSubmit();
     } catch (error) {
-      console.error(error);
+      errorMessage += " " + { error };
+      setIsUpdating(false);
+      setHasError(true);
     }
-  };  
-  return (
-    <Box sx={style}>
+  };
+  let content = (
+    <Box sx={modalStyle}>
       <Typography
         variant="h4"
         component="h1"
@@ -97,9 +102,8 @@ const UpdateProfileForm = (props) => {
             size="small"
             margin="normal"
             color="purple"
-            defaultValue={position}
+            defaultValue={ctxUserData.userPosition}
             onChange={changeHandler}
-            // required
             type="text"
             id="position"
             sx={{
@@ -113,6 +117,18 @@ const UpdateProfileForm = (props) => {
           />
         </Grid>
 
+        <Grid item xs={9}>
+          {hasPositionError ? (
+            <Typography
+              variant="h5"
+              color={"red"}
+              sx={{ fontWeight: "bold", paddingBottom: "20px" }}
+            >
+              Position field can only contain letters and spaces.
+            </Typography>
+          ) : null}
+        </Grid>
+
         <Grid item xs={6}>
           <Typography
             variant="h6"
@@ -124,13 +140,13 @@ const UpdateProfileForm = (props) => {
             Date:
           </Typography>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={7}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={["DatePicker"]}>
               <DatePicker
                 minDate={dayjs("01-01-1950")}
                 maxDate={dayjs("01-01-2005")}
-                value={birthday}
+                value={dayjs(birthday)}
                 onChange={(newBirthday) => setBirthday(dayjs(newBirthday))}
                 sx={{
                   backgroundColor: "#E6E7E8",
@@ -154,12 +170,11 @@ const UpdateProfileForm = (props) => {
               color: "#E6E7E8",
               fontWeight: "bold",
               borderRadius: "12px",
-              border: "2px solid var(--yellowish)",
+              border: "2px solid #CFDB31",
               margin: "1rem",
               padding: "1rem",
               "&:hover": {
                 backgroundColor: "orange",
-                color: "lightPurple)",
                 border: "3px solid purple",
               },
             }}
@@ -178,12 +193,11 @@ const UpdateProfileForm = (props) => {
               color: "#E6E7E8",
               fontWeight: "bold",
               borderRadius: "12px",
-              border: "2px solid var(--yellowish)",
+              border: "2px solid #CFDB31",
               margin: "1rem",
               padding: "1rem",
               "&:hover": {
                 backgroundColor: "green",
-                color: "lightPurple)",
                 border: "3px solid purple",
               },
             }}
@@ -194,5 +208,28 @@ const UpdateProfileForm = (props) => {
       </Grid>
     </Box>
   );
+
+  if (isUpdating) {
+    content = (
+      <Box sx={modalStyle}>
+        <UpdatingForm />
+      </Box>
+    );
+  }
+  if (isUpdated) {
+    content = (
+      <Box sx={modalStyle}>
+        <UpdatedItem />
+      </Box>
+    );
+  }
+  if (hasError && !hasPositionError) {
+    content = (
+      <Box sx={modalStyle}>
+        <ErrorUpdateProfileForm message={errorMessage} />
+      </Box>
+    );
+  }
+  return content;
 };
 export default UpdateProfileForm;

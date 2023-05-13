@@ -10,9 +10,10 @@ export function removeAuthToken() {
   localStorage.removeItem("token");
 }
 
-export function removeUserData() {
-  localStorage.removeItem("userData");
-}
+//not usefull anymore, delete it
+// export function removeUserData() {
+//   localStorage.removeItem("userData");
+// }
 
 export function validateToken(userAccesToken) {
   if (userAccesToken !== null) {

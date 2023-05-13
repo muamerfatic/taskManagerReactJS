@@ -1,21 +1,12 @@
 import { Button, Grid, Box, Typography } from "@mui/material";
 import * as React from "react";
-import { useState } from "react";
-import axios from "axios";
-import { useEffect } from "react";
-import { useCallback } from "react";
+import { useContext, useState } from "react";
 import UpdateProfileModal from "../modals/UpdateProfileModal";
 import GridItem from "../UI/GridItem";
-import { myFirebaseUrl } from "../../util/myFirebase";
+import UserDataContext from "../../store/userData-context";
 
 const ProfileCard = () => {
-  const [userInfo, setUserInfo] = useState({
-    username: "",
-    email: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [position, setPosition] = useState("Update info on button");
-  const [birthday, setBirthday] = useState("Update info on button");
+  const ctxUserData = useContext(UserDataContext);
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const closeUpdateModal = () => {
@@ -25,47 +16,7 @@ const ProfileCard = () => {
     setShowUpdateModal(true);
   };
 
-  const updatePosition = (newPosition) => {
-    setPosition(newPosition);
-  };
-  const updateBirthday = (newBirthday) => {
-    setBirthday(newBirthday);
-  };
-
-  const getUser = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const uid = JSON.parse(localStorage.getItem("userData")).uid;
-      const response = await axios.get(
-        myFirebaseUrl + "users/" + uid + ".json"
-      );
-      const data = response.data;
-
-      setUserInfo({
-        username: data.username,
-        email: data.email,
-      });
-      data.position
-        ? setPosition(data.position)
-        : setPosition("Update info on button");
-        
-      data.birthday
-      ? setBirthday(data.birthday)
-      : setBirthday("Update info on button");
-    } catch (error) {
-      console.error(error);
-    }
-    finally{
-      
-    setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    getUser();
-  }, [getUser]);
-
-  let content = !isLoading ? (
+  return (
     <Box
       sx={{
         flexGrow: 1,
@@ -101,7 +52,7 @@ const ProfileCard = () => {
           >
             Username
           </Typography>
-          <GridItem>{userInfo.username}</GridItem>
+          <GridItem>{ctxUserData.userUsername}</GridItem>
         </Grid>
         <Grid item xs={6}>
           <Typography
@@ -113,7 +64,7 @@ const ProfileCard = () => {
           >
             Email
           </Typography>
-          <GridItem>{userInfo.email}</GridItem>
+          <GridItem>{ctxUserData.userEmail}</GridItem>
         </Grid>
         <Grid item xs={6}>
           <Typography
@@ -126,7 +77,9 @@ const ProfileCard = () => {
             Birthday
           </Typography>
           <GridItem>
-            {birthday}
+            {ctxUserData.userBirthday
+              ? ctxUserData.userBirthday
+              : "Update info on button"}
           </GridItem>
         </Grid>
         <Grid item xs={6}>
@@ -140,11 +93,13 @@ const ProfileCard = () => {
             Position
           </Typography>
           <GridItem>
-            {position}
+            {ctxUserData.userPosition
+              ? ctxUserData.userPosition
+              : "Update info on button"}
           </GridItem>
         </Grid>
 
-        <Grid item xs={4}>
+        <Grid item xs={12}>
           <Button
             type="submit"
             variant="contained"
@@ -171,20 +126,12 @@ const ProfileCard = () => {
       </Grid>
       {showUpdateModal ? (
         <UpdateProfileModal
-          updatePosition={updatePosition}
-          updateBirthday={updateBirthday}
-          position={position}
-          birthday={birthday}
           showThisUpdateModal={showUpdateModal}
           closeThisUpdateModal={closeUpdateModal}
           closeModalOnSubmit={closeUpdateModal}
         />
       ) : null}
     </Box>
-  ) : (
-    <div>Loading..</div>
   );
-
-  return content;
 };
 export default ProfileCard;

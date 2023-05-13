@@ -6,19 +6,9 @@ import { Button } from "@mui/material";
 import { Typography } from "@mui/material";
 import axios from "axios";
 import { myFirebaseUrl } from "../../util/myFirebase";
+import formStyle from "../forms/style-form";
 
-const Registration = (props) => {
-  const validatePassword = (password, confirmPassword) => {
-    let isValid = true;
-    if (password !== "" && confirmPassword !== "") {
-      if (password !== confirmPassword) {
-        isValid = false;
-        //todo//setError("Passwords does not match");
-      }
-    }
-    return isValid;
-  };
-
+const RegistrationForm = (props) => {
   const {
     register,
     handleSubmit,
@@ -33,52 +23,34 @@ const Registration = (props) => {
         {
           email: email,
           username: username,
-          pasword: password,
+          password: password,
           birthday: "",
           position: "",
         }
       );
       console.log(response);
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }
 
   // const onErrors = (errors) => console.error(errors);
   const handleRegistration = (data, event) => {
-    console.log(data);
     event.preventDefault();
-    if (validatePassword(data.password, data.confirmPassword)) {
-      // Create a new user with email and password using firebase
-      createUserWithEmailAndPassword(auth, data.email, data.password)
-        .then((res) => {
-          console.log(res.user.uid);
-
-          addUser(res.user.uid, data.email, data.username, data.password);
-          props.closeModalOnSubmit();
-        })
-        .catch((err) => {
-          //todo set error
-        });
-    }
+    // Create a new user with email and password using firebase
+    createUserWithEmailAndPassword(auth, data.email, data.password)
+      .then((res) => {
+        addUser(res.user.uid, data.email, data.username, data.password);
+        props.closeModalOnSubmit();
+      })
+      .catch((err) => {
+        //todo set error
+      });
   };
 
   return (
     <div>
-      <form
-        onSubmit={handleSubmit(handleRegistration)}
-        style={{
-          backgroundColor: "#d1afd3",
-          width: "90%",
-          height: "90%",
-          padding: "1rem",
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
-          borderRadius: "12px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+      <form onSubmit={handleSubmit(handleRegistration)} style={formStyle}>
         <Typography variant="h4" component="h1" color="myFont" align="center">
           Sign up
         </Typography>
@@ -88,7 +60,6 @@ const Registration = (props) => {
           size="small"
           margin="normal"
           color="purple"
-          // required
           type="email"
           error={errors?.email}
           helperText={errors?.email ? errors.email?.message : ""}
@@ -114,7 +85,6 @@ const Registration = (props) => {
           size="small"
           margin="normal"
           color="purple"
-          // required
           error={errors?.username}
           helperText={errors?.username ? errors.username?.message : ""}
           sx={{
@@ -129,7 +99,6 @@ const Registration = (props) => {
             pattern: {
               value:
                 /^(?=.{2,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/i,
-              // value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
               message: "Please Enter A Valid Username!",
             },
           })}
@@ -142,7 +111,6 @@ const Registration = (props) => {
           margin="normal"
           color="purple"
           type="password"
-          // required
           error={errors?.password}
           helperText={errors?.password ? errors.password?.message : ""}
           sx={{
@@ -168,7 +136,6 @@ const Registration = (props) => {
           margin="normal"
           color="purple"
           type="password"
-          // required
           error={errors?.confirmPassword}
           helperText={
             errors?.confirmPassword ? errors.confirmPassword?.message : ""
@@ -214,4 +181,4 @@ const Registration = (props) => {
     </div>
   );
 };
-export default Registration;
+export default RegistrationForm;

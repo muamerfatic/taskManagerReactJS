@@ -7,35 +7,53 @@ import MyTasksPage from "./pages/MyTasksPage";
 import ProfilePage from "./pages/ProfilePage";
 import TasksPage from "./pages/TasksPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import ProtectedPage from "./pages/ProtectedPage";
+import UserDataProvider from "./store/UserDataProvider";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     id: "root",
-    errorElement: <ErrorPage />, // new
+    errorElement: <ErrorPage />,
   },
   {
     path: "/dashboard",
-    element: <DashboardPage />,
+    element: (
+      <ProtectedPage>
+        <DashboardPage />
+      </ProtectedPage>
+    ),
     id: "dashboard",
     errorElement: <ErrorPage />,
   },
   {
     path: "/mytasks",
-    element: <MyTasksPage />,
+    element: (
+      <ProtectedPage>
+        <MyTasksPage />
+      </ProtectedPage>
+    ),
     id: "mytasks",
     errorElement: <ErrorPage />,
   },
   {
     path: "/tasks",
-    element: <TasksPage />,
+    element: (
+      <ProtectedPage>
+        <TasksPage />
+      </ProtectedPage>
+    ),
     id: "tasks",
     errorElement: <ErrorPage />,
   },
   {
     path: "/profile",
-    element: <ProfilePage />,
+    element: (
+      <ProtectedPage>
+        <ProfilePage />
+      </ProtectedPage>
+    ),
     id: "profile",
     errorElement: <ErrorPage />,
   },
@@ -46,9 +64,12 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
 ]);
-
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <UserDataProvider>
+      <RouterProvider router={router} />
+    </UserDataProvider>
+  );
 }
 
 export default App;

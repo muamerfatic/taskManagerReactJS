@@ -10,7 +10,6 @@ const InputTextFieldForm = (props) => {
       label={props.label}
       required
       // helperText="insert an valid email"
-
       sx={{
         backgroundColor: "#E6E7E8",
         "&:hover": {

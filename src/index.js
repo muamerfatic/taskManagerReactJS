@@ -5,17 +5,14 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ThemeProvider } from "@mui/material";
 import theme from "./dashboardTheme";
-import UserDataProvider from "./store/UserDataProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <UserDataProvider>
     <ThemeProvider theme={theme}>
       <React.StrictMode>
         <App />
       </React.StrictMode>
     </ThemeProvider>
-  </UserDataProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

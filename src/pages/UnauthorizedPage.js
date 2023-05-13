@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { removeAuthToken, removeUserData } from "../util/auth";
+import { removeAuthToken } from "../util/auth";
 import { auth } from "../firebase";
 
 const UnauthorizedPage = () => {
   const navigate = useNavigate();
   const onClickHandler = () => {
-    //remove possible token in local storage, it may be not valid.
+    //remove possible token in local storage, it could be not valid.
     auth
       .signOut()
       .then((res) => {
@@ -17,7 +17,6 @@ const UnauthorizedPage = () => {
       });
 
     removeAuthToken();
-    removeUserData();
     navigate("/");
   };
   return (

@@ -12,13 +12,14 @@ import {
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { removeAuthToken, removeUserData } from "../../util/auth";
+import { removeAuthToken } from "../../util/auth";
 import { getAuth } from "firebase/auth";
 import profilePic from "../../values/pictures/profilePicture.png";
-
+import { useMediaQuery } from "@mui/material";
 const pages = ["Dashboard", "MyTasks", "Tasks"];
 
 const NavigationBar = () => {
+  const isTabletOrMobile = useMediaQuery("(max-width: 390px)");
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -36,7 +37,7 @@ const NavigationBar = () => {
       .signOut()
       .then((res) => {
         removeAuthToken();
-        removeUserData();
+        // removeUserData();
         navigate("/");
       })
       .catch((err) => {
@@ -48,25 +49,27 @@ const NavigationBar = () => {
     navigate("/");
   };
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ width: "100%" }}>
       <Toolbar>
-        <Typography
-          variant="h6"
-          component="h1"
-          onClick={logoClickHandler}
-          sx={{
-            flexGrow: 1,
-            fontFamily: "monospace",
-            fontWeight: 700,
-            letterSpacing: ".3rem",
-          }}
-        >
-          TASK MANAGER
-        </Typography>
+        {!isTabletOrMobile ? (
+          <Typography
+            variant="h6"
+            component="h1"
+            onClick={logoClickHandler}
+            sx={{
+              flexGrow: 1,
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+            }}
+          >
+            TASK MANAGER
+          </Typography>
+        ) : null}
 
         <Stack direction="row" spacing={2}>
           {pages.map((page) => (
-            <Button key={page} style={{ color: "white" }}>
+            <Button key={page}>
               <Link
                 to={`/${page}`}
                 style={{ textDecoration: "none", color: "white" }}
@@ -82,7 +85,6 @@ const NavigationBar = () => {
               aria-haspopup="true"
               aria-expanded={open ? "true" : undefined}
               onClick={handleClick}
-              sx={{ color: "red" }}
             >
               <Avatar src={profilePic} alt="Profile" />
             </IconButton>

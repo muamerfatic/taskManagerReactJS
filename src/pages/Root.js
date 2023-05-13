@@ -10,12 +10,6 @@ import { Container } from "@mui/material";
 
 const Root = () => {
   const navigate = useNavigate();
-  // const [removeToken, setRemoveToken] = useState(true);
-  // //only one time will execute
-  // if (removeToken) {
-  //   removeAuthToken();
-  //   setRemoveToken(false);
-  // }
 
   const [showRegModal, setShowRegModal] = useState(false);
   const closeRegModal = () => {
@@ -33,12 +27,11 @@ const Root = () => {
     setShowLoginModal(true);
   };
 
-  const token = getAuthToken();
   useEffect(() => {
     if (getAuthToken()) {
       navigate("/dashboard");
     }
-  }, [token, navigate]);
+  }, [navigate]);
 
   return (
     <Container sx={{ textAlign: "center", margin: "auto" }}>

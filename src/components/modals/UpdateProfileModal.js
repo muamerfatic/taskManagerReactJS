@@ -5,11 +5,11 @@ import UpdateProfileForm from "../profile/UpdateProfileForm";
 
 export default function UpdateProfileModal(props) {
   const [open, setOpen] = useState(props.showThisUpdateModal);
-     const closeModalOnSubmitHandler = () => {
+  const closeModalOnSubmitHandler = () => {
     setOpen(false);
     props.closeThisUpdateModal();
   };
-  
+
   return (
     <div>
       <Modal
@@ -18,10 +18,11 @@ export default function UpdateProfileModal(props) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <UpdateProfileForm position={props.position}
-        updateBirthday={props.updateBirthday}
-        updatePosition={props.updatePosition}
-        closeModalOnSubmit={closeModalOnSubmitHandler}
+        <UpdateProfileForm
+          position={props.position}
+          updateBirthday={props.updateBirthday}
+          updatePosition={props.updatePosition}
+          closeModalOnSubmit={closeModalOnSubmitHandler}
         />
       </Modal>
     </div>

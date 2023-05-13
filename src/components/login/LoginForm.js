@@ -7,8 +7,9 @@ import { Button } from "@mui/material";
 import { Typography } from "@mui/material";
 import { useContext } from "react";
 import UserDataContext from "../../store/userData-context";
+import formStyle from "../forms/style-form";
 
-const Login = () => {
+const LoginForm = () => {
   const navigate = useNavigate();
   const ctxUserData = useContext(UserDataContext);
   const {
@@ -23,17 +24,16 @@ const Login = () => {
     // Create a new user with email and password using firebase
     signInWithEmailAndPassword(auth, data.email, data.password)
       .then((res) => {
-        console.log("LOGOVAN");
         const token = auth.currentUser.accessToken;
         localStorage.setItem("token", token);
-        ctxUserData.userAccessToken = token;
-        ctxUserData.userEmail = data.email;
-        ctxUserData.userUID = auth.currentUser.uid;
-        const userDataObject = {
-          email: data.email,
-          uid: auth.currentUser.uid,
-        };
-        localStorage.setItem("userData", JSON.stringify(userDataObject));
+        if (
+          ctxUserData.userEmail === "" ||
+          ctxUserData.userEmail === undefined ||
+          ctxUserData.userEmail === null ||
+          ctxUserData.userEmail !== data.email
+        ) {
+          ctxUserData.setInitialValue(data.email);
+        }
         navigate("/dashboard");
       })
       .catch((err) => {
@@ -48,20 +48,7 @@ const Login = () => {
   //   <form onSubmit={handleSubmit(onFormSubmit, onErrors)}>{/* ... */}</form>;
   return (
     <div>
-      <form
-        onSubmit={handleSubmit(handleLogin)}
-        style={{
-          backgroundColor: "#d1afd3",
-          width: "90%",
-          height: "90%",
-          padding: "1rem",
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
-          borderRadius: "12px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+      <form onSubmit={handleSubmit(handleLogin)} style={formStyle}>
         <Typography variant="h4" component="h1" color="myFont" align="center">
           Login
         </Typography>
@@ -71,7 +58,6 @@ const Login = () => {
           size="small"
           margin="normal"
           color="purple"
-          // required
           type="email"
           error={errors?.email}
           helperText={errors?.email ? errors.email?.message : ""}
@@ -98,7 +84,6 @@ const Login = () => {
           margin="normal"
           color="purple"
           type="password"
-          // required
           error={errors?.password}
           helperText={errors?.password ? errors.password?.message : ""}
           sx={{
@@ -141,4 +126,4 @@ const Login = () => {
     </div>
   );
 };
-export default Login;
+export default LoginForm;
