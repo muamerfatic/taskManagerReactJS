@@ -65,13 +65,12 @@ const Root = () => {
           backgroundColor: "#9F4298",
           fontWeight: "bolder",
           borderRadius: "12px",
-          border: "3px solid var(--yellowish)",
+          border: "3px solid #CFDB31",
           margin: "1rem",
           padding: "1rem",
           "&:hover": {
             backgroundColor: "green",
-            color: "lightPurple)",
-            border: "3px solid purple",
+            border: "3px solid #9F4298",
           },
         }}
       >
@@ -88,7 +87,6 @@ const Root = () => {
         Already in?
         <Button
           size="large"
-          color="purple"
           variant="text"
           onClick={openLoginModal}
           sx={{ fontWeight: "bolder" }}

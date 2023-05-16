@@ -5,7 +5,6 @@ const InputTextFieldForm = (props) => {
       variant="filled"
       size="small"
       margin="normal"
-      color="purple"
       type={props.type}
       label={props.label}
       required
@@ -13,7 +12,7 @@ const InputTextFieldForm = (props) => {
       sx={{
         backgroundColor: "#E6E7E8",
         "&:hover": {
-          border: "3px solid purple",
+          border: "3px solid #9F4298",
           borderRadius: "12px",
         },
       }}

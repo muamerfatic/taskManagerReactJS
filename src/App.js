@@ -9,6 +9,7 @@ import TasksPage from "./pages/TasksPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ProtectedPage from "./pages/ProtectedPage";
 import UserDataProvider from "./store/UserDataProvider";
+import NewTaskPage from "./pages/NewTaskPage";
 
 const router = createBrowserRouter([
   {
@@ -46,7 +47,7 @@ const router = createBrowserRouter([
     ),
     id: "tasks",
     errorElement: <ErrorPage />,
-  },
+      },
   {
     path: "/profile",
     element: (
@@ -56,6 +57,17 @@ const router = createBrowserRouter([
     ),
     id: "profile",
     errorElement: <ErrorPage />,
+  },
+  {
+    path:'/newtask',
+    id:'newtask',
+    errorElement:<ErrorPage/>,
+    element:(
+      <ProtectedPage>
+        <NewTaskPage/>
+      </ProtectedPage>
+    )
+
   },
   {
     path: "/unauthorized",

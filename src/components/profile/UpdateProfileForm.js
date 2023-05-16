@@ -54,7 +54,6 @@ const UpdateProfileForm = (props) => {
         position: position ? position : "",
         birthday: datestring ? datestring : "",
       });
-      setIsUpdating(true);
       ctxUserData.addPosition(position ? position : "");
       ctxUserData.addBirthday(datestring ? datestring : "");
       setIsUpdated(true);
@@ -100,8 +99,6 @@ const UpdateProfileForm = (props) => {
           <TextField
             variant="filled"
             size="small"
-            margin="normal"
-            color="purple"
             defaultValue={ctxUserData.userPosition}
             onChange={changeHandler}
             type="text"
@@ -110,7 +107,7 @@ const UpdateProfileForm = (props) => {
               backgroundColor: "#E6E7E8",
               border: "3px solid #CFDB31",
               "&:hover": {
-                border: "3px solid purple",
+                border: "3px solid #9F4298",
                 borderRadius: "12px",
               },
             }}
@@ -152,7 +149,7 @@ const UpdateProfileForm = (props) => {
                   backgroundColor: "#E6E7E8",
                   border: "3px solid #CFDB31",
                   "&:hover": {
-                    border: "3px solid purple",
+                    border: "3px solid #9F4298",
                     borderRadius: "12px",
                   },
                 }}
@@ -171,11 +168,9 @@ const UpdateProfileForm = (props) => {
               fontWeight: "bold",
               borderRadius: "12px",
               border: "2px solid #CFDB31",
-              margin: "1rem",
-              padding: "1rem",
               "&:hover": {
                 backgroundColor: "orange",
-                border: "3px solid purple",
+                border: "3px solid #9F4298",
               },
             }}
           >
@@ -195,10 +190,9 @@ const UpdateProfileForm = (props) => {
               borderRadius: "12px",
               border: "2px solid #CFDB31",
               margin: "1rem",
-              padding: "1rem",
               "&:hover": {
                 backgroundColor: "green",
-                border: "3px solid purple",
+                border: "3px solid #9F4298",
               },
             }}
           >

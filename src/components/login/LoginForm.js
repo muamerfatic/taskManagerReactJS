@@ -57,14 +57,13 @@ const LoginForm = () => {
           variant="filled"
           size="small"
           margin="normal"
-          color="purple"
           type="email"
           error={errors?.email}
           helperText={errors?.email ? errors.email?.message : ""}
           sx={{
             backgroundColor: "#E6E7E8",
             "&:hover": {
-              border: "3px solid purple",
+              border: "3px solid #9F4298",
               borderRadius: "12px",
             },
           }}
@@ -82,14 +81,13 @@ const LoginForm = () => {
           variant="filled"
           size="small"
           margin="normal"
-          color="purple"
           type="password"
           error={errors?.password}
           helperText={errors?.password ? errors.password?.message : ""}
           sx={{
             backgroundColor: "#E6E7E8",
             "&:hover": {
-              border: "3px solid purple",
+              border: "3px solid #9F4298",
               borderRadius: "12px",
             },
           }}
@@ -104,19 +102,16 @@ const LoginForm = () => {
         <Button
           type="submit"
           variant="contained"
-          color="purple"
           size="medium"
           sx={{
             color: "#E6E7E8",
             fontWeight: "bold",
             borderRadius: "12px",
-            border: "2px solid var(--yellowish)",
+            border: "2px solid #CFDB31",
             margin: "1rem",
-            padding: "1rem",
             "&:hover": {
               backgroundColor: "green",
-              color: "lightPurple)",
-              border: "3px solid purple",
+              border: "3px solid #9F4298",
             },
           }}
         >

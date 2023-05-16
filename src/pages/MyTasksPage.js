@@ -1,11 +1,11 @@
 import NavigationBar from "../components/navigationBar/NavigationBar";
-
+import MyTasksCard from "../components/mytasks/MyTasksCard";
 const MyTasksPage = () => {
   return (
-    <div>
+    <>
       <NavigationBar />
-      <h1>MyTasks</h1>
-    </div>
+      <MyTasksCard/>
+    </>
   );
 };
 export default MyTasksPage;

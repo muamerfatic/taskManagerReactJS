@@ -103,20 +103,17 @@ const ProfileCard = () => {
           <Button
             type="submit"
             variant="contained"
-            color="purple"
             onClick={openUpdateModal}
             size="medium"
             sx={{
               color: "#E6E7E8",
               fontWeight: "bold",
               borderRadius: "12px",
-              border: "2px solid var(--yellowish)",
+              border: "2px solid #CFDB31",
               margin: "1rem",
-              padding: "1rem",
               "&:hover": {
                 backgroundColor: "green",
-                color: "lightPurple)",
-                border: "3px solid purple",
+                border: "3px solid #9F4298",
               },
             }}
           >

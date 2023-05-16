@@ -1,7 +1,7 @@
 import { useRouteError } from "react-router-dom";
 import { Container, Typography } from "@mui/material";
 
-export default function ErrorPage() {
+export default function ErrorPage(props) {
   const error = useRouteError();
 
   return (
@@ -13,7 +13,7 @@ export default function ErrorPage() {
         Sorry, an unexpected error has occurred.
       </Typography>
       <Typography variant="p" component="p" gutterBottom>
-        <i>{error.statusText || error.message}</i>
+        <i>{props.message || error.statusText || error.message}</i>
       </Typography>
     </Container>
   );
