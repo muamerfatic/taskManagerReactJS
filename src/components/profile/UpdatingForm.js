@@ -20,7 +20,7 @@ const UpdatingForm = () => {
       </Grid>
       <Grid item xs={3} alignContent={"center"}>
         <ReactLoading
-          textAlign={"center"}
+          textalign={"center"}//mora biti textalign, a ne textAlign
           type={"bars"}
           color={"#03fc4e"}
           height={100}

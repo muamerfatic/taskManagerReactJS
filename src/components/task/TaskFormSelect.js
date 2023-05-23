@@ -14,7 +14,7 @@ const TaskFormSelect = (props) => {
         },
       }}
     >
-      <InputLabel id={props.inputLabelId}>Status</InputLabel>
+      <InputLabel id={props.inputLabelId}>{props.id}</InputLabel>
       <Select
         labelId={props.inputLabelId}
         id={props.id}

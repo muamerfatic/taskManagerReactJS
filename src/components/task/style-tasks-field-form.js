@@ -1,4 +1,4 @@
-const taskStyle={
+const tasksFieldFormStyle={
     backgroundColor: "#E6E7E8",
     border: "2px solid #CFDB31",
       borderRadius: "12px",
@@ -6,4 +6,4 @@ const taskStyle={
       border: "3px solid #9F4298",
     },
   };
-export default taskStyle;
+export default tasksFieldFormStyle;

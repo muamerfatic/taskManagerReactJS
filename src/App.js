@@ -10,6 +10,9 @@ import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ProtectedPage from "./pages/ProtectedPage";
 import UserDataProvider from "./store/UserDataProvider";
 import NewTaskPage from "./pages/NewTaskPage";
+import TaskProvider from "./store/TaskProvider";
+import TaskDetailPage from "./pages/TaskDetailPage";
+import EditTaskPage from "./pages/EditTaskPage";
 
 const router = createBrowserRouter([
   {
@@ -47,7 +50,28 @@ const router = createBrowserRouter([
     ),
     id: "tasks",
     errorElement: <ErrorPage />,
-      },
+  },
+  {
+    path: "/tasks/:taskTitle",
+    element: (
+      <ProtectedPage>
+        <TaskDetailPage />
+      </ProtectedPage>
+    ),
+    id: "taskDetail",
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/tasks/edittask/:taskTitle",
+    element: (
+      <ProtectedPage>
+        <EditTaskPage />
+      </ProtectedPage>
+    ),
+    id: "editTask",
+    errorElement: <ErrorPage />,
+  },
+
   {
     path: "/profile",
     element: (
@@ -59,15 +83,14 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path:'/newtask',
-    id:'newtask',
-    errorElement:<ErrorPage/>,
-    element:(
+    path: "/newtask",
+    id: "newtask",
+    errorElement: <ErrorPage />,
+    element: (
       <ProtectedPage>
-        <NewTaskPage/>
+        <NewTaskPage />
       </ProtectedPage>
-    )
-
+    ),
   },
   {
     path: "/unauthorized",
@@ -79,7 +102,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <UserDataProvider>
+      {/* <TaskProvider> */}
       <RouterProvider router={router} />
+      {/* </TaskProvider> */}
     </UserDataProvider>
   );
 }

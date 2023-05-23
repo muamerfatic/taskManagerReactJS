@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
-import MyTasks from "./MyTasks";
+import Tasks from "./Tasks";
 
-const MyTasksCard = () => {
+const TasksCard = () => {
   return (
     <Box
       sx={{
@@ -20,11 +20,11 @@ const MyTasksCard = () => {
         color="myFont"
         sx={{ fontWeight: "bold", padding: "0.8rem" }}
       >
-        Tasks that are assigned to you
+        All tasks
       </Typography>
 
-      <MyTasks />
+      <Tasks />
     </Box>
   );
 };
-export default MyTasksCard;
+export default TasksCard;

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
 import { Grid, Typography, MenuItem, Box } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useCallback } from "react";
 import UserDataContext from "../../store/userData-context";
 import { useState } from "react";
 import dayjs from "dayjs";
@@ -14,10 +14,14 @@ import UpdatedItem from "../profile/UpdatedItem";
 import ErrorPage from "../../pages/ErrorPage";
 import UpdatingForm from "../profile/UpdatingForm";
 import DatePickerWrapper from "../UI/DatePickerWrapper";
-import taskStyle from "./style-task";
-import { makeDateString } from "./TaskFormHelperFunctions";
-import { priorityDataHandler } from "./TaskFormHelperFunctions";
+import tasksFieldFormStyle from "./style-tasks-field-form";
+import {
+  makeDateString,
+  statusDataHandler,
+  priorityDataHandler,
+} from "./TaskFormHelperFunctions";
 import TaskFormSelect from "./TaskFormSelect";
+import { useEffect } from "react";
 
 const TaskForm = () => {
   const navigate = useNavigate();
@@ -28,6 +32,7 @@ const TaskForm = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdated, setIsUpdated] = useState(false);
   const [hasError, setHasError] = useState("");
+  const [usersEmail, setUsersEmail] = useState([]);
 
   const updatedClickHandler = () => {
     navigate("/tasks");
@@ -40,7 +45,39 @@ const TaskForm = () => {
     formState: { errors },
   } = useForm(); //mode:"onBlur"
 
+  //so I can validate assigned user
+  const fetchAllUsers = useCallback(async () => {
+    try {
+      const responseUsers = await axios.get(myFirebaseUrl + "users.json");
+      if (responseUsers.statusText !== "OK") {
+        throw new Error("Something went wrong: " + responseUsers.statusText);
+      }
+
+      const users = await responseUsers.data;
+      const usersEmail = [];
+      //za svaki user, izvadi email i ubaci ga
+      for (const userUID in users) {
+        const responseUser = await axios.get(
+          myFirebaseUrl + "users/" + userUID + ".json"
+        );
+        if (responseUser.statusText !== "OK") {
+          throw new Error("Something went wrong: " + responseUser.statusText);
+        }
+        const user = await responseUser.data;
+        usersEmail.push(user.email);
+      }
+      setUsersEmail(usersEmail);
+    } catch (error) {
+      console.log(error.message);
+      setHasError(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, [fetchAllUsers]);
   // const onErrors = (errors) => console.error(errors);
+
   const statusChangeHandler = (event) => {
     setStatus(event.target.value);
   };
@@ -51,30 +88,31 @@ const TaskForm = () => {
   const handleAddNewTask = async (data) => {
     try {
       setIsUpdating(true);
-      let statusData = "";
-      status === 0 ? (statusData = "NOT ACTIVE") : (statusData = "ACTIVE");
+      let statusData = statusDataHandler(status);
       let priorityData = priorityDataHandler(priority);
 
       const startDateString = makeDateString(new Date(startDate));
       const dueDateString = makeDateString(new Date(dueDate));
 
+      const taskForAdd = {
+        creator: ctxUserData.userEmail,
+        title: data.title,
+        status: statusData,
+        priority: priorityData,
+        description: data.description,
+        possibleEstimation: data.possibleEstimation,
+        startDate: startDateString,
+        dueDate: dueDateString,
+        assignedUser: data.assignedUser,
+      };
       const response = await axios.patch(
         myFirebaseUrl + "tasks/" + data.title + ".json",
-        {
-          creator: ctxUserData.userEmail,
-          title: data.title,
-          status: statusData,
-          priority: priorityData,
-          description: data.description,
-          possibleEstimation: data.possibleEstimation,
-          startDate: startDateString,
-          dueDate: dueDateString,
-          assignedUser: data.assignedUser,
-        }
+        taskForAdd
       );
       if (response.statusText !== "OK") {
         throw new Error("Something went wrong: " + response.statusText);
       }
+      ctxUserData.addTask(taskForAdd);
       setIsUpdated(true);
     } catch (err) {
       setHasError(err.message);
@@ -142,30 +180,40 @@ const TaskForm = () => {
               type="text"
               error={errors?.title}
               helperText={errors?.title ? errors.title?.message : ""}
-              sx={taskStyle}
+              sx={tasksFieldFormStyle}
               {...register("title", {
                 required: "Please Enter Your Title",
                 pattern: {
                   value: /^[A-Za-z0-9\-\_]*$/i,
                   message: "Only letters, numbers and underscore are allowed.",
                 },
+                validate: (match) => {
+                  for (const task in ctxUserData.tasks) {
+                    console.log(ctxUserData.tasks.at(task).title, "===", match);
+                    if (match === ctxUserData.tasks.at(task).title) {
+                      return "This title of task is already taken. Please give your task diffrent title.";
+                    }
+                  }
+                  return true;
+                },
               })}
             />
 
             <TaskFormSelect
               inputLabelId="select-status-label"
-              id="status"
+              id="Status"
               value={status}
               defaultValue={status}
               onChange={statusChangeHandler}
             >
-              <MenuItem value={1}>Active</MenuItem>
-              <MenuItem value={0}>Not Active</MenuItem>
+              <MenuItem value={2}>COMPLETED</MenuItem>
+              <MenuItem value={1}>ACTIVE</MenuItem>
+              <MenuItem value={0}>NOT ACTIVE</MenuItem>
             </TaskFormSelect>
 
             <TaskFormSelect
               inputLabelId="select-priority-label"
-              id="priority"
+              id="Priority"
               value={priority}
               defaultValue={priority}
               onChange={priorityChangeHandler}
@@ -183,7 +231,7 @@ const TaskForm = () => {
               minRows={4}
               margin="normal"
               type="text"
-              sx={taskStyle}
+              sx={tasksFieldFormStyle}
               {...register("description")}
             />
             <TextField
@@ -193,7 +241,7 @@ const TaskForm = () => {
               minRows={4}
               margin="normal"
               type="text"
-              sx={taskStyle}
+              sx={tasksFieldFormStyle}
               {...register("possibleEstimation")}
             />
           </Grid>
@@ -242,9 +290,17 @@ const TaskForm = () => {
                 helperText={
                   errors?.assignedUser ? errors.assignedUser?.message : ""
                 }
-                sx={taskStyle}
+                sx={tasksFieldFormStyle}
                 {...register("assignedUser", {
-                  required: "Please Enter Assigned User",
+                  required: "Please Enter Assigned Users Email!",
+                  validate: (match) => {
+                    for (const user in usersEmail) {
+                      if (usersEmail.at(user) === match) {
+                        return true;
+                      }
+                    }
+                    return "User with entered email does not exist!";
+                  },
                 })}
               />
             </Grid>

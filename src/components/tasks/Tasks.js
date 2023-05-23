@@ -10,7 +10,7 @@ import Task from "../task/Task";
 import TasksContext from "../../store/tasks-context";
 import TasksList from "../task/TasksList";
 
-const MyTasks = () => {
+const Tasks = () => {
   const ctxUserData = useContext(UserDataContext);
 
   if (ctxUserData.error) {
@@ -22,6 +22,7 @@ const MyTasks = () => {
   }
 
   if (ctxUserData.isLoading) {
+    console.log('HEJ LOADINGSSSS')
     return (
       //   <Box sx={modalStyle}>
       <UpdatingForm />
@@ -29,6 +30,6 @@ const MyTasks = () => {
     );
   }
 
-  return <TasksList tasks={ctxUserData.myTasks} />;
+  return <TasksList tasks={ctxUserData.tasks} />;
 };
-export default MyTasks;
+export default Tasks;

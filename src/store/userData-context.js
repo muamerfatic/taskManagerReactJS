@@ -1,6 +1,14 @@
 import React from "react";
 
 const UserDataContext = React.createContext({
+  tasks: "",
+  myTasks: "",
+  error: "",
+  isLoading: "",
+  addTask: (newTask) => {},
+  deleteTask: (taskTitleForDelete) => {},
+  // fetchTasks: () => {},
+  // getMyTasks:()=>{},
   userUsername: "",
   userEmail: "",
   userUID: "",

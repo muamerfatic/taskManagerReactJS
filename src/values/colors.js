@@ -4,4 +4,5 @@ export const COLORS = {
   lightPurple: "#D1AFD3",
   lightGray: "#E6E7E8",
   myFont: "#333333",
+  backgroundOfTasks:'#e2bFe4'
 };

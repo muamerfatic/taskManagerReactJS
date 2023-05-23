@@ -7,6 +7,37 @@ export const priorityDataHandler = (priority) => {
       return "HIGH";
     }
   };
+
+  export const priorityColorHandler = (priority) => {
+    if (priority === "LOW") {
+      return "green";
+    } else if (priority === 'MEDIUM') {
+      return "blue";
+    } else if (priority === 'HIGH') {
+      return "red";
+    }
+  };
+
+  export const statusDataHandler = (status) => {
+    if (status === 0) {
+      return "NOT ACTIVE";
+    } else if (status === 1) {
+      return "ACTIVE";
+    } else if (status === 2) {
+      return "COMPLETED";
+    }
+  };
+
+  export const statusColorHandler = (status) => {
+    if (status === "NOT ACTIVE") {
+      return 'red';
+    } else if (status === 'ACTIVE') {
+      return "blue";
+    } else if (status === 'COMPLETED') {
+      return "green";
+    }
+  };
+
   export const makeDateString = (date) => {
     return (
       ("0" + (date.getMonth() + 1)).slice(-2) +
