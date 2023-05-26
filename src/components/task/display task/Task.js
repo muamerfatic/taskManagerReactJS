@@ -9,27 +9,32 @@ import {
 import {
   priorityColorHandler,
   statusColorHandler,
-} from "./TaskFormHelperFunctions";
+} from "../new task/TaskFormHelperFunctions";
 import { useContext } from "react";
-import ErrorPage from "../../pages/ErrorPage";
-import modalStyle from "../modals/style-modal";
-import UpdatingForm from "../profile/UpdatingForm";
-import UserDataContext from "../../store/userData-context";
+import ErrorPage from "../../../pages/ErrorPage";
+import modalStyle from "../../modals/style-modal";
+import UpdatingForm from "../../profile/UpdatingForm";
+import UserDataContext from "../../../store/userData-context";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 const Task = (props) => {
+  const { t } = useTranslation();
   const isTabletOrMobile = useMediaQuery("(max-width: 390px)");
   const navigate = useNavigate();
   const ctxUserData = useContext(UserDataContext);
+
   const deleteTaskHandler = () => {
-    console.log("saljem ti ", props.title);
     ctxUserData.deleteTask(props.title);
+  };
+
+  const editTaskHandler = () => {
+    navigate(`/tasks/edit/${props.title}`);
   };
 
   const taskClickHandler = () => {
     navigate(`/tasks/${props.title}`);
   };
-
-  console.log(ctxUserData.isLoading);
 
   if (ctxUserData.error) {
     return (
@@ -40,12 +45,7 @@ const Task = (props) => {
   }
 
   if (ctxUserData.isLoading) {
-    console.log("OVDJE...");
-    return (
-      //   <Box sx={modalStyle}>
-      <UpdatingForm />
-      //   </Box>
-    );
+    return <UpdatingForm />;
   }
 
   const isUserAuthorizedToDeleteOrEdit =
@@ -59,7 +59,6 @@ const Task = (props) => {
       container
       spacing={1}
       justifyContent="center"
-      alignContent="center"
       sx={{
         width: "75%",
         margin: "auto",
@@ -69,65 +68,47 @@ const Task = (props) => {
         borderRadius: "12px",
       }}
     >
-      <Grid item xs={12} md={7}
-      
-      onClick={taskClickHandler}>
+      <Grid item xs={12} md={7} onClick={taskClickHandler}>
         <Typography variant="h5" color="#333333" sx={{ fontWeight: "bold" }}>
-          Task: {props.title}
+          {t("task.part1")} {props.title}
         </Typography>
       </Grid>
 
-      <Grid item xs={12} md={6} sx={{ textAlign: "left" }}
-      
-      onClick={taskClickHandler}>
-        <Stack
-          spacing={2}
-          alignItems={"flex-start"}
-          sx={{ marginTop: "0.3rem" }}
-        >
-          <Typography
-            variant="p"
-            component="p"
-            color="#333333"
-            sx={{ fontWeight: "bold" }}
-          >
-            Due Date:{" "}
+      <Grid
+        item
+        xs={12}
+        md={6}
+        sx={{ textAlign: "left" }}
+        onClick={taskClickHandler}
+      >
+        <Stack spacing={2} sx={{ marginTop: "0.3rem" }}>
+          <Typography variant="p" component="p" sx={{ fontWeight: "bold" }}>
+            {t("task.dueDate")}{" "}
             <Typography variant="p" color="red">
               {props.dueDate}
             </Typography>
           </Typography>
-          <Typography
-            variant="p"
-            component="p"
-            color="#333333"
-            sx={{ fontWeight: "bold" }}
-          >
+          <Typography variant="p" component="p" sx={{ fontWeight: "bold" }}>
             Status:
             <Typography variant="p" color={statusColorHandler(props.status)}>
               {" " + props.status}
             </Typography>
           </Typography>
-          <Typography
-            variant="p"
-            component="p"
-            color="#333333"
-            sx={{ fontWeight: "bold" }}
-          >
-            Created by: {props.creator}
+          <Typography variant="p" component="p" sx={{ fontWeight: "bold" }}>
+            {t("task.createdBy")} {props.creator}
           </Typography>
         </Stack>
       </Grid>
       <Grid
-      
         item
         xs={12}
         md={5}
-        
         sx={{ textAlign: "right", marginRight: "0.1rem" }}
       >
         <Stack
           spacing={1}
           alignItems={!isTabletOrMobile ? "flex-end" : "center"}
+          color="#E6E7E8"
         >
           <Button
             variant="contained"
@@ -141,7 +122,6 @@ const Task = (props) => {
             }
             onClick={deleteTaskHandler}
             sx={{
-              color: "#E6E7E8",
               fontWeight: "bold",
               borderRadius: "12px",
               border: "2px solid #E6E7E8",
@@ -150,15 +130,15 @@ const Task = (props) => {
               },
             }}
           >
-            DELETE
+            {t("task.delete")}
           </Button>
           <Button
             variant="contained"
             color="info"
             disabled={isUserAuthorizedToDeleteOrEdit}
+            onClick={editTaskHandler}
             size="small"
             sx={{
-              color: "#E6E7E8",
               fontWeight: "bold",
               borderRadius: "12px",
               border: "2px solid #E6E7E8",
@@ -167,7 +147,7 @@ const Task = (props) => {
               },
             }}
           >
-            EDIT
+            {t("task.edit")}
           </Button>
           <Button
             variant="contained"
@@ -175,7 +155,6 @@ const Task = (props) => {
             size="small"
             disabled={isUserAuthorizedToDeleteOrEdit}
             sx={{
-              color: "#E6E7E8",
               fontWeight: "bold",
               borderRadius: "12px",
               border: "2px solid #E6E7E8",
@@ -184,18 +163,16 @@ const Task = (props) => {
               },
             }}
           >
-            COMPLETE
+            {t("task.complete")}
           </Button>
         </Stack>
       </Grid>
-      <Grid item xs={12} md={6}
-      onClick={taskClickHandler}>
+      <Grid item xs={12} md={6} onClick={taskClickHandler}>
         <Typography
           variant="span"
-          color="#333333"
           sx={{ fontWeight: "bolder" }}
         >
-          PRIORITY:{" "}
+          {t("task.priority")}
           <Typography
             variant=""
             color={priorityColorHandler(props.priority)}

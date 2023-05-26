@@ -1,7 +1,8 @@
-import { Box} from "@mui/material";
-import TaskForm from "./TaskForm";
+import { Box } from "@mui/material";
+import TaskForm from "./new task/TaskForm";
+import EditTaskForm from "./task edit/EditTaskForm";
 
-const TaskCard = () => {
+const TaskCard = (props) => {
   return (
     <Box
       sx={{
@@ -13,7 +14,7 @@ const TaskCard = () => {
         borderRadius: "12px",
       }}
     >
-      <TaskForm/>
+      {props.editingTask ? <EditTaskForm title={props.title} /> : <TaskForm />}
     </Box>
   );
 };

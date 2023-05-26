@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useState, useContext } from "react";
 import Box from "@mui/material/Box";
 import { Typography, Grid, TextField, Button } from "@mui/material";
@@ -14,8 +13,11 @@ import UpdatedItem from "./UpdatedItem";
 import ErrorUpdateProfileForm from "./ErrorUpdateProfileForm";
 import UpdatingForm from "./UpdatingForm";
 import modalStyle from "../modals/style-modal";
+import { useTranslation } from "react-i18next";
+import { makeDateString } from "../task/new task/TaskFormHelperFunctions";
 
 const UpdateProfileForm = (props) => {
+  const { t } = useTranslation();
   const ctxUserData = useContext(UserDataContext);
 
   const [position, setPosition] = useState(ctxUserData.userPosition);
@@ -24,74 +26,84 @@ const UpdateProfileForm = (props) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdated, setIsUpdated] = useState(false);
   const [hasError, setHasError] = useState(false);
-  let errorMessage = "Try again later";
+  let errorMessage = t("updateProfileForm.part1");
 
   const validatePosition = (argPosition) => {
-    // return argPosition.match("^[A-Za-z]")
     return /^[A-Za-z\s]*$/.test(argPosition);
   };
-  //TODO: validate input, set error and loading
+
   const changeHandler = (event) => {
     setPosition(event.target.value);
   };
+
   const handleSubmit = async () => {
     try {
       setIsUpdating(true);
-      //TODO: validate inputs...
       if (!validatePosition(position) || position === "") {
-        setHasPositionError(true);
-        throw "Position field can only contain letters and spaces.";
+        throw t("updateProfileForm.part2");
       }
       const uid = ctxUserData.userUID;
-      const DATE = new Date(birthday);
-      const datestring =
-        ("0" + (DATE.getMonth() + 1)).slice(-2) +
-        "/" +
-        ("0" + DATE.getDate()).slice(-2) +
-        "/" +
-        DATE.getFullYear();
+      const datestring = makeDateString(new Date(birthday));
+
       await axios.patch(myFirebaseUrl + "users/" + uid + ".json", {
         position: position ? position : "",
         birthday: datestring ? datestring : "",
       });
+
       ctxUserData.addPosition(position ? position : "");
       ctxUserData.addBirthday(datestring ? datestring : "");
       setIsUpdated(true);
-      // props.closeModalOnSubmit();
     } catch (error) {
-      errorMessage += " " + { error };
-      setIsUpdating(false);
+      if (error === t("updateProfileForm.part2")) {
+        setHasPositionError(error);
+      }
       setHasError(true);
     }
   };
-  let content = (
-    <Box sx={modalStyle}>
+
+  //error with firebase
+  if (hasError && !hasPositionError) {
+    return (
+      <Box sx={modalStyle}>
+        <ErrorUpdateProfileForm message={errorMessage} />
+      </Box>
+    );
+  }
+  if (isUpdated) {
+    return (
+      <Box sx={modalStyle}>
+        <UpdatedItem />
+      </Box>
+    );
+  }
+  if (isUpdating) {
+    return (
+      <Box sx={modalStyle}>
+        <UpdatingForm />
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ ...modalStyle, textAlign: "center" }}>
       <Typography
         variant="h4"
         component="h1"
         color="myFont"
-        align="center"
         sx={{ fontWeight: "bold", paddingBottom: "20px" }}
       >
-        Update Your info
+        {t("profile.part4")}
       </Typography>
 
-      <Grid
-        container
-        spacing={1}
-        textAlign="center"
-        alignItems="center"
-        justifyContent="center"
-      >
+      <Grid container spacing={1} alignItems="center" justifyContent="center">
         <Grid item xs={6}>
           <Typography
             variant="h6"
             component="p"
             color="#9F4298"
-            align="center"
             sx={{ fontWeight: "bold" }}
           >
-            Position:
+            {t("profile.part3")}
           </Typography>
         </Grid>
 
@@ -102,7 +114,6 @@ const UpdateProfileForm = (props) => {
             defaultValue={ctxUserData.userPosition}
             onChange={changeHandler}
             type="text"
-            id="position"
             sx={{
               backgroundColor: "#E6E7E8",
               border: "3px solid #CFDB31",
@@ -121,7 +132,7 @@ const UpdateProfileForm = (props) => {
               color={"red"}
               sx={{ fontWeight: "bold", paddingBottom: "20px" }}
             >
-              Position field can only contain letters and spaces.
+              {hasPositionError}
             </Typography>
           ) : null}
         </Grid>
@@ -131,10 +142,9 @@ const UpdateProfileForm = (props) => {
             variant="h6"
             component="p"
             color="#9F4298"
-            align="center"
             sx={{ fontWeight: "bold" }}
           >
-            Date:
+            {t("updateProfileForm.part3")}
           </Typography>
         </Grid>
         <Grid item xs={7}>
@@ -161,7 +171,6 @@ const UpdateProfileForm = (props) => {
           <Button
             variant="contained"
             color="error"
-            size="medium"
             onClick={props.closeModalOnSubmit}
             sx={{
               color: "#E6E7E8",
@@ -174,7 +183,7 @@ const UpdateProfileForm = (props) => {
               },
             }}
           >
-            CANCEL
+            {t("updateProfileForm.part4")}
           </Button>
         </Grid>
         <Grid item xs={6}>
@@ -182,7 +191,6 @@ const UpdateProfileForm = (props) => {
             type="submit"
             variant="contained"
             color="success"
-            size="medium"
             onClick={handleSubmit}
             sx={{
               color: "#E6E7E8",
@@ -196,34 +204,11 @@ const UpdateProfileForm = (props) => {
               },
             }}
           >
-            SUBMIT
+            {t("register.part11")}
           </Button>
         </Grid>
       </Grid>
     </Box>
   );
-
-  if (isUpdating) {
-    content = (
-      <Box sx={modalStyle}>
-        <UpdatingForm />
-      </Box>
-    );
-  }
-  if (isUpdated) {
-    content = (
-      <Box sx={modalStyle}>
-        <UpdatedItem />
-      </Box>
-    );
-  }
-  if (hasError && !hasPositionError) {
-    content = (
-      <Box sx={modalStyle}>
-        <ErrorUpdateProfileForm message={errorMessage} />
-      </Box>
-    );
-  }
-  return content;
 };
 export default UpdateProfileForm;

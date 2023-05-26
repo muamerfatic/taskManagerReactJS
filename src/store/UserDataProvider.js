@@ -37,10 +37,7 @@ const UserProvider = (props) => {
     setIsLoading(true);
     const tasksArray = [...tasks];
     tasksArray.filter((task) => {
-      console.log(task);
       if (task.title === taskTitleForDelete) {
-        console.log("SAMO JEDAN JE ", task);
-        console.log("index mu je ", tasksArray.indexOf(task));
         axios
           .delete(myFirebaseUrl + "tasks/" + taskTitleForDelete + ".json")
           .then(() => {
@@ -54,15 +51,42 @@ const UserProvider = (props) => {
             setIsLoading(false);
           })
           .catch((error) => {
-            console.log(error);
+            setError(error);
           });
       }
     });
-    // tasksArray.pop()
-    console.log("tasks su ", tasks);
-    console.log("obrisani je", tasksArray);
     setTasks(tasksArray);
-    console.log("zasto??");
+  };
+
+  const updateTaskHandler = (taskForUpdate) => {
+    const tempTasks = [...tasks];
+    const tempMyTasks = [...myTasks];
+    let addedInMyTask = false;
+    for (const counter in tempTasks) {
+      if (tempTasks.at(counter).title === taskForUpdate.title) {
+        tempTasks[counter] = taskForUpdate;
+        if (tempTasks[counter].assignedUser === userEmail) {
+          tempMyTasks.push(tempTasks[counter]);
+          addedInMyTask = true;
+        }
+        break;
+      }
+    }
+    //ako je tek dodan nema potrebe ici ga traziti ovdje.
+    if (!addedInMyTask) {
+      for (const counter in tempMyTasks) {
+        if (tempMyTasks.at(counter).title === taskForUpdate.title) {
+          tempMyTasks[counter] = taskForUpdate;
+          if (tempMyTasks.at(counter).assignedUser !== userEmail) {
+            //ako se promijenio assignedUser, tj ako vise nisam ja treba me izbacit odavdje.
+            tempMyTasks.splice(counter, 1);
+          }
+          break;
+        }
+      }
+    }
+    setTasks(tempTasks);
+    setMyTasks(tempMyTasks);
   };
 
   const getUser = useCallback(async () => {
@@ -70,19 +94,13 @@ const UserProvider = (props) => {
     try {
       const auth = getAuth();
       onAuthStateChanged(auth, (user) => {
-        console.log("ovdje sammmmmmmmmmmmmmmmmmmmmmmmmm");
-        console.log(user.email);
         if (user) {
-          console.log("udjem i ovdje cak...");
-          //User is signed in
-          console.log(user.uid);
           setUserUID(user.uid);
         } else {
           // User is signed out
         }
       });
 
-      console.log("jel se ovo stvarno");
       const response = await axios.get(
         myFirebaseUrl + "users/" + userUID + ".json"
       );
@@ -95,7 +113,7 @@ const UserProvider = (props) => {
       //dio za taskove...
       setIsLoading(true);
 
-      const responseTitles = await axios.get(myFirebaseUrl + "tasks" + ".json");
+      const responseTitles = await axios.get(myFirebaseUrl + "tasks.json");
       if (responseTitles.statusText !== "OK") {
         throw new Error("Something went wrong: " + responseTitles.statusText);
       }
@@ -108,26 +126,22 @@ const UserProvider = (props) => {
         const responseTask = await axios.get(
           myFirebaseUrl + "tasks/" + title + ".json"
         );
+
         if (responseTask.statusText !== "OK") {
           throw new Error("Something went wrong: " + responseTask.statusText);
         }
         const task = await responseTask.data;
+
         allTasks.push(task); //jer ovdje cuvamo sve taskove...
 
-        console.log(task.assignedUser, "===", userEmail); //nema mi userEmaila nikako ne kontam..
         if (task.assignedUser === userEmail) {
           tasksForThisUser.push(task); //cuvamo samo koji su assigned ovom useru.
         }
       }
       setTasks(allTasks);
       setMyTasks(tasksForThisUser);
-      // } catch (error) {
-      //   console.log(error.message);
-      //   // setError(error.message);
-      // }
+
       setIsLoading(false);
-      //   //   }
-      // }, []);
     } catch (error) {
       console.log(error);
     }
@@ -135,14 +149,13 @@ const UserProvider = (props) => {
   }, [userUID, userEmail]);
 
   useEffect(() => {
-    console.log("jel se ovo stvarno");
     getUser();
     // fetchTasksHandler();
   }, [getUser]);
 
-  const loadingHandler=()=>{
+  const loadingHandler = () => {
     setIsLoading(!isLoading);
-  }
+  };
   const userDataContextValue = {
     tasks,
     error,
@@ -151,6 +164,8 @@ const UserProvider = (props) => {
     loadingHandler,
     addTask: addTaskHandler,
     deleteTask: deleteTaskHandler,
+
+    updateTask: updateTaskHandler,
     // fetchTasks: fetchTasksHandler,
     // getMyTasks,
     userUID,

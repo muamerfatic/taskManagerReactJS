@@ -8,5 +8,6 @@ const GridItem = styled(Paper)(({ theme }) => ({
   color: "#333333",
   border: "1px solid #CFDB31",
   overflow: "auto",
+  width: "40%",
 }));
 export default GridItem;

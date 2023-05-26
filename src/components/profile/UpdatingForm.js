@@ -5,7 +5,6 @@ const UpdatingForm = () => {
     <Grid
       container
       spacing={1}
-      textAlign="center"
       alignItems="center"
       justifyContent="center"
     >

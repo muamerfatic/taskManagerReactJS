@@ -1,5 +1,5 @@
 import logo from "../logo.svg";
-import { Box, Button } from "@mui/material";
+import { Box, Button,Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import RegistrationModal from "../components/registration/RegistrationModal";
 import LoginModal from "../components/login/LoginModal";
@@ -7,8 +7,16 @@ import { getAuthToken } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { Container } from "@mui/material";
+import { useTranslation, Trans } from "react-i18next";
+
 
 const Root = () => {
+  const { t ,i18n} = useTranslation();
+  const lngs = {
+    en: { nativeName: "English" },
+    ba: { nativeName: "Bosanski" },
+  };
+
   const navigate = useNavigate();
 
   const [showRegModal, setShowRegModal] = useState(false);
@@ -35,12 +43,32 @@ const Root = () => {
 
   return (
     <Container sx={{ textAlign: "center", margin: "auto" }}>
-      <Typography variant="h2" color={"#333333"}>
-        Welcome to TaskManager
+      <Stack direction={'row'}
+      justifyContent={'flex-end'}
+      
+      >
+        {Object.keys(lngs).map((lng) => (
+          <Button
+            key={lng}
+            sx={{
+              fontWeight: i18n.resolvedLanguage === lng ? "bold" : "normal",
+            
+            }}
+            type="submit"
+            onClick={() => i18n.changeLanguage(lng)}
+          >
+            {lngs[lng].nativeName}
+          </Button>
+        ))}
+      </Stack>
+      <Typography variant="h2" color={"#333333"}sx={{
+      }}>
+        <Trans i18nKey="welcomePage.part1">Welcome to TaskManager</Trans>
       </Typography>
       <img src={logo} className="App-logo" alt="logo" />
       <Container
         sx={{
+          width:'75%',
           padding: "2.5% ",
           borderRadius: "30px",
           backgroundColor: "#9f4298",
@@ -49,11 +77,11 @@ const Root = () => {
         }}
       >
         <Typography variant="h6">
-          Ever felt like you are full of responsibilities and you won't get to
-          "mark them as checked".
+          {t("welcomePage.part2")}
         </Typography>
         <Typography variant="h6">
-          Well we are here to help you organize time and manage your tasks.
+          
+        {t("welcomePage.part3")}
         </Typography>
       </Container>
       <Button
@@ -74,7 +102,7 @@ const Root = () => {
           },
         }}
       >
-        Get started!
+      {t("welcomePage.part4")}
       </Button>
       {showRegModal ? (
         <RegistrationModal
@@ -84,14 +112,16 @@ const Root = () => {
         />
       ) : null}
       <Box>
-        Already in?
+        
+      {t("welcomePage.part5")}
         <Button
           size="large"
           variant="text"
           onClick={openLoginModal}
           sx={{ fontWeight: "bolder" }}
         >
-          Login
+          
+      {t("welcomePage.part6")}
         </Button>
         {showLoginModal ? (
           <LoginModal

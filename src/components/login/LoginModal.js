@@ -7,10 +7,12 @@ import modalStyle from "../modals/style-modal";
 
 export default function LoginModal(props) {
   const [open, setOpen] = useState(props.showThisLoginModal);
+
   const closeModalOnSubmitHandler = () => {
     setOpen(false);
     props.closeModalOnSubmit();
   };
+
   return (
     <div>
       <Modal

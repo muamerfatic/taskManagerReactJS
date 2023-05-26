@@ -11,6 +11,7 @@ export default function RegistrationModal(props) {
     setOpen(false);
     props.closeModalOnSubmit();
   };
+  
   return (
     <div>
       <Modal

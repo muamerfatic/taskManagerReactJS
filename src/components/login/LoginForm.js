@@ -2,28 +2,33 @@ import { useForm } from "react-hook-form";
 import { auth } from "../../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import TextField from "@mui/material/TextField";
-import { Button } from "@mui/material";
-import { Typography } from "@mui/material";
+import { Button, Typography, TextField, Box } from "@mui/material";
 import { useContext } from "react";
 import UserDataContext from "../../store/userData-context";
 import formStyle from "../forms/style-form";
+import { useState } from "react";
+import UpdatingForm from "../profile/UpdatingForm";
+import modalStyle from "../modals/style-modal";
+import { useTranslation } from "react-i18next";
 
 const LoginForm = () => {
+  const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
   const navigate = useNavigate();
   const ctxUserData = useContext(UserDataContext);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm(); //mode:"onBlur"
-
-  // const onErrors = (errors) => console.error(errors);
+  } = useForm();
 
   const handleLogin = (data) => {
-    // Create a new user with email and password using firebase
+    setIsLoading(true);
+    // Sign in a new user with email and password using firebase
     signInWithEmailAndPassword(auth, data.email, data.password)
-      .then((res) => {
+      .then(() => {
         const token = auth.currentUser.accessToken;
         localStorage.setItem("token", token);
         if (
@@ -34,23 +39,28 @@ const LoginForm = () => {
         ) {
           ctxUserData.setInitialValue(data.email);
         }
+        setIsLoading(false);
         navigate("/dashboard");
       })
-      .catch((err) => {
-        //todo set error
-        //todo set email error
-        //todo set password error
-        //todo set fetching error
-        console.log(err);
+      .catch(() => {
+        setIsLoading(false);
+        setLoginError(t("login.part2"));
       });
   };
 
-  //   <form onSubmit={handleSubmit(onFormSubmit, onErrors)}>{/* ... */}</form>;
+  if (isLoading) {
+    return (
+      <Box sx={modalStyle}>
+        <UpdatingForm />
+      </Box>
+    );
+  }
+
   return (
     <div>
       <form onSubmit={handleSubmit(handleLogin)} style={formStyle}>
         <Typography variant="h4" component="h1" color="myFont" align="center">
-          Login
+          {t("login.part1")}
         </Typography>
         <TextField
           label="Email"
@@ -68,10 +78,10 @@ const LoginForm = () => {
             },
           }}
           {...register("email", {
-            required: "Please Enter Your Email",
+            required: t("register.part2"),
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Please Enter A Valid Email!",
+              message: t("register.part3"),
             },
           })}
         />
@@ -92,31 +102,31 @@ const LoginForm = () => {
             },
           }}
           {...register("password", {
-            required: "Please Enter Your Password!",
+            required: t("register.part7"),
             minLength: {
               value: 6,
-              message: "Password must be at least 6 characters long",
+              message: t("register.part8"),
             },
           })}
         />
+
         <Button
           type="submit"
           variant="contained"
-          size="medium"
           sx={{
             color: "#E6E7E8",
             fontWeight: "bold",
             borderRadius: "12px",
             border: "2px solid #CFDB31",
-            margin: "1rem",
             "&:hover": {
               backgroundColor: "green",
               border: "3px solid #9F4298",
             },
           }}
         >
-          Login
+          {t("login.part1")}
         </Button>
+        {loginError ? <Typography color="red">{loginError}</Typography> : ""}
       </form>
     </div>
   );

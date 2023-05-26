@@ -4,27 +4,29 @@ import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
 import { Grid, Typography, MenuItem, Box } from "@mui/material";
 import { useContext, useCallback } from "react";
-import UserDataContext from "../../store/userData-context";
-import { useState } from "react";
+import UserDataContext from "../../../store/userData-context";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
-import { myFirebaseUrl } from "../../util/myFirebase";
-import modalStyle from "../modals/style-modal";
-import UpdatedItem from "../profile/UpdatedItem";
-import ErrorPage from "../../pages/ErrorPage";
-import UpdatingForm from "../profile/UpdatingForm";
-import DatePickerWrapper from "../UI/DatePickerWrapper";
-import tasksFieldFormStyle from "./style-tasks-field-form";
+import { myFirebaseUrl } from "../../../util/myFirebase";
+import modalStyle from "../../modals/style-modal";
+import UpdatedItem from "../../profile/UpdatedItem";
+import ErrorPage from "../../../pages/ErrorPage";
+import UpdatingForm from "../../profile/UpdatingForm";
+import DatePickerWrapper from "../../UI/DatePickerWrapper";
+import tasksFieldFormStyle from "../style-tasks-field-form";
 import {
   makeDateString,
   statusDataHandler,
   priorityDataHandler,
 } from "./TaskFormHelperFunctions";
 import TaskFormSelect from "./TaskFormSelect";
-import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const TaskForm = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  
   const [status, setStatus] = useState(1);
   const [priority, setPriority] = useState(1);
   const [startDate, setStartDate] = useState(new Date());
@@ -33,17 +35,15 @@ const TaskForm = () => {
   const [isUpdated, setIsUpdated] = useState(false);
   const [hasError, setHasError] = useState("");
   const [usersEmail, setUsersEmail] = useState([]);
+  const [dateError, setDateError] = useState("");
 
-  const updatedClickHandler = () => {
-    navigate("/tasks");
-  };
   const ctxUserData = useContext(UserDataContext);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm(); //mode:"onBlur"
+  } = useForm(); 
 
   //so I can validate assigned user
   const fetchAllUsers = useCallback(async () => {
@@ -52,7 +52,6 @@ const TaskForm = () => {
       if (responseUsers.statusText !== "OK") {
         throw new Error("Something went wrong: " + responseUsers.statusText);
       }
-
       const users = await responseUsers.data;
       const usersEmail = [];
       //za svaki user, izvadi email i ubaci ga
@@ -85,6 +84,10 @@ const TaskForm = () => {
     setPriority(event.target.value);
   };
 
+  const updatedClickHandler = () => {
+    navigate("/tasks");
+  };
+
   const handleAddNewTask = async (data) => {
     try {
       setIsUpdating(true);
@@ -94,6 +97,10 @@ const TaskForm = () => {
       const startDateString = makeDateString(new Date(startDate));
       const dueDateString = makeDateString(new Date(dueDate));
 
+      if (dueDate < startDate) {
+        throw new Error(t("error.dateError"));
+        // setDateError('Due date can not be lower then start date!')
+      }
       const taskForAdd = {
         creator: ctxUserData.userEmail,
         title: data.title,
@@ -115,9 +122,15 @@ const TaskForm = () => {
       ctxUserData.addTask(taskForAdd);
       setIsUpdated(true);
     } catch (err) {
-      setHasError(err.message);
+      if (err.message === t("error.dateError")) {
+        setIsUpdating(false);
+        setDateError(err.message);
+      } else {
+        setHasError(err.message);
+      }
     }
   };
+
   if (hasError) {
     return (
       <Box sx={modalStyle}>
@@ -144,7 +157,7 @@ const TaskForm = () => {
             },
           }}
         >
-          Go Back To Tasks
+          {t("task.goBack")}
         </Button>
       </Box>
     );
@@ -156,7 +169,7 @@ const TaskForm = () => {
       </Box>
     );
   }
-  //   <form onSubmit={handleSubmit(onFormSubmit, onErrors)}>{/* ... */}</form>;
+  
   return (
     <div>
       <form onSubmit={handleSubmit(handleAddNewTask)}>
@@ -167,31 +180,30 @@ const TaskForm = () => {
           margin={"10px"}
           sx={{ fontWeight: "bold" }}
         >
-          New Task
+          {t("task.newTask")}
         </Typography>
 
         <Grid container spacing={1} justifyContent="center" alignItems="center">
           <Grid item xs={12} md={4}>
             <TextField
-              label="Title"
+              label={t("task.title")}
               variant="filled"
-              size="medium"
               margin="normal"
               type="text"
               error={errors?.title}
               helperText={errors?.title ? errors.title?.message : ""}
               sx={tasksFieldFormStyle}
               {...register("title", {
-                required: "Please Enter Your Title",
+                required: t("task.enterTitle"),
                 pattern: {
                   value: /^[A-Za-z0-9\-\_]*$/i,
-                  message: "Only letters, numbers and underscore are allowed.",
+                  message: t("task.enterTitleError"),
                 },
                 validate: (match) => {
                   for (const task in ctxUserData.tasks) {
                     console.log(ctxUserData.tasks.at(task).title, "===", match);
                     if (match === ctxUserData.tasks.at(task).title) {
-                      return "This title of task is already taken. Please give your task diffrent title.";
+                      return t("task.enterTitleTaken");
                     }
                   }
                   return true;
@@ -225,7 +237,7 @@ const TaskForm = () => {
           </Grid>
           <Grid item xs={12} md={4}>
             <TextField
-              label="Description"
+              label={t("task.description")}
               variant="filled"
               multiline
               minRows={4}
@@ -235,7 +247,7 @@ const TaskForm = () => {
               {...register("description")}
             />
             <TextField
-              label="Possible Estimation"
+              label={t("task.possibleEstimation")}
               variant="filled"
               multiline
               minRows={4}
@@ -249,11 +261,10 @@ const TaskForm = () => {
             <Typography
               variant="p"
               component="p"
-              color="#9F4298"
-              align="center"
+              color="primary"
               sx={{ fontWeight: "bold", textAlign: "left" }}
             >
-              START DATE:
+              {t("task.startDate")}
             </Typography>
             <DatePickerWrapper
               minDate={dayjs(new Date())}
@@ -266,11 +277,10 @@ const TaskForm = () => {
             <Typography
               variant="p"
               component="p"
-              color="#9F4298"
-              align="center"
+              color="primary"
               sx={{ fontWeight: "bold", textAlign: "left" }}
             >
-              DUE DATE:
+              {t("task.dueDate")}
             </Typography>
             <DatePickerWrapper
               minDate={dayjs(new Date())}
@@ -279,11 +289,11 @@ const TaskForm = () => {
                 setDueDate(newDueDate);
               }}
             />
+            {dateError ? <Typography color="red">{dateError}</Typography> : ""}
             <Grid item md={9} xs={12}>
               <TextField
-                label="Assigned User"
+                label={t("task.assignedUser")}
                 variant="filled"
-                size="medium"
                 margin="normal"
                 type="text"
                 error={errors?.assignedUser}
@@ -292,14 +302,14 @@ const TaskForm = () => {
                 }
                 sx={tasksFieldFormStyle}
                 {...register("assignedUser", {
-                  required: "Please Enter Assigned Users Email!",
+                  required: t("task.enterAssignedUser"),
                   validate: (match) => {
                     for (const user in usersEmail) {
                       if (usersEmail.at(user) === match) {
                         return true;
                       }
                     }
-                    return "User with entered email does not exist!";
+                    return t("task.assignedUserError");
                   },
                 })}
               />
@@ -310,7 +320,6 @@ const TaskForm = () => {
         <Button
           type="submit"
           variant="contained"
-          size="medium"
           sx={{
             color: "#E6E7E8",
             fontWeight: "bold",
@@ -323,7 +332,7 @@ const TaskForm = () => {
             },
           }}
         >
-          Add Task
+          {t("task.addTask")}
         </Button>
       </form>
     </div>

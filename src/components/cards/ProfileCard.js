@@ -1,11 +1,17 @@
-import { Button, Grid, Box, Typography } from "@mui/material";
+import { Button, Stack, Grid, Box, Typography } from "@mui/material";
 import * as React from "react";
 import { useContext, useState } from "react";
 import UpdateProfileModal from "../modals/UpdateProfileModal";
 import GridItem from "../UI/GridItem";
 import UserDataContext from "../../store/userData-context";
+import { useTranslation } from "react-i18next";
 
 const ProfileCard = () => {
+  const { t, i18n } = useTranslation();
+  const lngs = {
+    en: { nativeName: "English" },
+    ba: { nativeName: "Bosanski" },
+  };
   const ctxUserData = useContext(UserDataContext);
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -19,10 +25,8 @@ const ProfileCard = () => {
   return (
     <Box
       sx={{
-        flexGrow: 1,
         margin: "45px auto",
-        textAlign: "center",
-        width: "75%",
+        width: "65%",
       }}
     >
       <Typography
@@ -32,71 +36,70 @@ const ProfileCard = () => {
         align="center"
         sx={{ fontWeight: "bold" }}
       >
-        Profile Info
+        {t("profile.part1")}
       </Typography>
 
-      <Grid
-        container
-        spacing={2}
-        textAlign="center"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Grid item xs={6}>
-          <Typography
-            variant="h6"
-            component="p"
-            color="myFont"
-            align="center"
-            sx={{ fontWeight: "bold", color: "#9F4298" }}
-          >
-            Username
-          </Typography>
-          <GridItem>{ctxUserData.userUsername}</GridItem>
+      <Grid container spacing={2} textAlign="center">
+        <Grid item xs={12} md={6}>
+          <Stack spacing={0.2} alignItems="center">
+            <Typography
+              variant="h6"
+              component="p"
+              color="primary"
+              sx={{ fontWeight: "bold" }}
+            >
+              {t("register.part4")}
+            </Typography>
+            <GridItem>{ctxUserData.userUsername}</GridItem>
+          </Stack>
         </Grid>
-        <Grid item xs={6}>
-          <Typography
-            variant="h6"
-            component="p"
-            color="myFont"
-            align="center"
-            sx={{ fontWeight: "bold", color: "#9F4298" }}
-          >
-            Email
-          </Typography>
-          <GridItem>{ctxUserData.userEmail}</GridItem>
+
+        <Grid item xs={12} md={6}>
+          <Stack spacing={0.2} alignItems="center">
+            <Typography
+              variant="h6"
+              component="p"
+              color="primary"
+              sx={{ fontWeight: "bold" }}
+            >
+              Email
+            </Typography>
+            <GridItem>{ctxUserData.userEmail}</GridItem>
+          </Stack>
         </Grid>
-        <Grid item xs={6}>
-          <Typography
-            variant="h6"
-            component="p"
-            color="myFont"
-            align="center"
-            sx={{ fontWeight: "bold", color: "#9F4298" }}
-          >
-            Birthday
-          </Typography>
-          <GridItem>
-            {ctxUserData.userBirthday
-              ? ctxUserData.userBirthday
-              : "Update info on button"}
-          </GridItem>
+        <Grid item xs={12} md={6}>
+          <Stack spacing={0.2} alignItems="center">
+            <Typography
+              variant="h6"
+              component="p"
+              color="primary"
+              sx={{ fontWeight: "bold" }}
+            >
+              {t("profile.part2")}
+            </Typography>
+            <GridItem>
+              {ctxUserData.userBirthday
+                ? ctxUserData.userBirthday
+                : t("profile.part5")}
+            </GridItem>
+          </Stack>
         </Grid>
-        <Grid item xs={6}>
-          <Typography
-            variant="h6"
-            component="p"
-            color="myFont"
-            align="center"
-            sx={{ fontWeight: "bold", color: "#9F4298" }}
-          >
-            Position
-          </Typography>
-          <GridItem>
-            {ctxUserData.userPosition
-              ? ctxUserData.userPosition
-              : "Update info on button"}
-          </GridItem>
+        <Grid item xs={12} md={6}>
+          <Stack spacing={0.2} alignItems="center">
+            <Typography
+              variant="h6"
+              component="p"
+              color="primary"
+              sx={{ fontWeight: "bold" }}
+            >
+              {t("profile.part3")}
+            </Typography>
+            <GridItem>
+              {ctxUserData.userPosition
+                ? ctxUserData.userPosition
+                : t("profile.part5")}
+            </GridItem>
+          </Stack>
         </Grid>
 
         <Grid item xs={12}>
@@ -104,20 +107,19 @@ const ProfileCard = () => {
             type="submit"
             variant="contained"
             onClick={openUpdateModal}
-            size="medium"
             sx={{
+              margin:'1rem',
               color: "#E6E7E8",
               fontWeight: "bold",
               borderRadius: "12px",
               border: "2px solid #CFDB31",
-              margin: "1rem",
               "&:hover": {
                 backgroundColor: "green",
                 border: "3px solid #9F4298",
               },
             }}
           >
-            Update your info :)
+            {t("profile.part4")}
           </Button>
         </Grid>
       </Grid>
@@ -128,6 +130,29 @@ const ProfileCard = () => {
           closeModalOnSubmit={closeUpdateModal}
         />
       ) : null}
+      <Typography
+        variant="h6"
+        component="p"
+        color='primary'
+        align="center"
+        sx={{ fontWeight: "bold" }}
+      >
+        Set your preference language:
+      </Typography>
+      <Stack direction={"row"} justifyContent={"center"}>
+        {Object.keys(lngs).map((lng) => (
+          <Button
+            key={lng}
+            sx={{
+              fontWeight: i18n.resolvedLanguage === lng ? "bold" : "normal",
+            }}
+            type="submit"
+            onClick={() => i18n.changeLanguage(lng)}
+          >
+            {lngs[lng].nativeName}
+          </Button>
+        ))}
+      </Stack>
     </Box>
   );
 };

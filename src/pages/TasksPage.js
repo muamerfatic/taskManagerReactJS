@@ -1,5 +1,4 @@
 import NavigationBar from "../components/navigationBar/NavigationBar";
-import { Button, Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import UserDataContext from "../store/userData-context";
@@ -17,9 +16,7 @@ const TasksPage = () => {
   return (
     <>
       <NavigationBar />
-
-      <ButtonAddTask newTaskHandler={newTaskHandler}/>
-
+      <ButtonAddTask newTaskHandler={newTaskHandler} />
       <TasksCard />
     </>
   );

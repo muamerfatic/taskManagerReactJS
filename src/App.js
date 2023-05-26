@@ -10,10 +10,8 @@ import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ProtectedPage from "./pages/ProtectedPage";
 import UserDataProvider from "./store/UserDataProvider";
 import NewTaskPage from "./pages/NewTaskPage";
-import TaskProvider from "./store/TaskProvider";
 import TaskDetailPage from "./pages/TaskDetailPage";
 import EditTaskPage from "./pages/EditTaskPage";
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -62,7 +60,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: "/tasks/edittask/:taskTitle",
+    path: "/tasks/edit/:taskTitle",
     element: (
       <ProtectedPage>
         <EditTaskPage />
@@ -102,9 +100,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <UserDataProvider>
-      {/* <TaskProvider> */}
       <RouterProvider router={router} />
-      {/* </TaskProvider> */}
     </UserDataProvider>
   );
 }

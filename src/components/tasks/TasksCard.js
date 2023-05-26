@@ -1,7 +1,9 @@
 import { Box, Typography } from "@mui/material";
 import Tasks from "./Tasks";
+import { useTranslation } from "react-i18next";
 
 const TasksCard = () => {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -20,7 +22,7 @@ const TasksCard = () => {
         color="myFont"
         sx={{ fontWeight: "bold", padding: "0.8rem" }}
       >
-        All tasks
+        {t("tasks.part1")}
       </Typography>
 
       <Tasks />

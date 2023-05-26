@@ -16,11 +16,15 @@ import { removeAuthToken } from "../../util/auth";
 import { getAuth } from "firebase/auth";
 import profilePic from "../../values/pictures/profilePicture.png";
 import { useMediaQuery } from "@mui/material";
-const pages = ["Dashboard", "MyTasks", "Tasks"];
+import { useTranslation } from "react-i18next";
 
 const NavigationBar = () => {
+  const { t } = useTranslation();
+
+  const pages = ["Dashboard", "MyTasks", "Tasks"];
   const isTabletOrMobile = useMediaQuery("(max-width: 390px)");
   const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -37,7 +41,6 @@ const NavigationBar = () => {
       .signOut()
       .then((res) => {
         removeAuthToken();
-        // removeUserData();
         navigate("/");
       })
       .catch((err) => {
@@ -72,9 +75,14 @@ const NavigationBar = () => {
             <Button key={page}>
               <Link
                 to={`/${page}`}
-                style={{ textDecoration: "none", color: "white" }}
+                style={{ textDecoration: "none", color: "#e6e7e8" }}
               >
-                {page}
+                {page === "MyTasks"
+                  ? t("navigationBar.part1")
+                  : page === "Tasks"
+                  ? t("navigationBar.part2")
+                  : "Dashboard"}
+                {/*potrebno radi navigacije i promjene jezika..da kada promijenim jezik i kliknem ovdje da ne ide na stranicu .../mojiZadaci umjesto /myTasks */}
               </Link>
             </Button>
           ))}
@@ -97,8 +105,12 @@ const NavigationBar = () => {
                 "aria-labelledby": "basic-button",
               }}
             >
-              <MenuItem onClick={handleProfile}>My account</MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem onClick={handleProfile}>
+                {t("navigationBar.part3")}
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                {t("navigationBar.part4")}
+              </MenuItem>
             </Menu>
           </div>
         </Stack>

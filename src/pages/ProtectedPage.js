@@ -2,13 +2,10 @@ import UnauthorizedPage from "./UnauthorizedPage";
 import { validateToken } from "../util/auth";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useState } from "react";
-import { useContext } from "react";
-import UserDataContext from "../store/userData-context";
 
 const ProtectedPage = (props) => {
   const auth = getAuth();
   const [isAuthorizedUser, setIsAuthorizedUser] = useState(true);
-  
 
   onAuthStateChanged(auth, (user) => {
     if (user) {

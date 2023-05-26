@@ -7,6 +7,7 @@ const UserDataContext = React.createContext({
   isLoading: "",
   addTask: (newTask) => {},
   deleteTask: (taskTitleForDelete) => {},
+  updateTask:(taskForUpdate)=>{},
   // fetchTasks: () => {},
   // getMyTasks:()=>{},
   userUsername: "",

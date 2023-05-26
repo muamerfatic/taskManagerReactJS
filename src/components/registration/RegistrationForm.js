@@ -1,20 +1,29 @@
 import { useForm } from "react-hook-form";
 import { auth } from "../../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import TextField from "@mui/material/TextField";
-import { Button } from "@mui/material";
-import { Typography } from "@mui/material";
+import { Button, Box, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import { myFirebaseUrl } from "../../util/myFirebase";
 import formStyle from "../forms/style-form";
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import UpdatingForm from "../profile/UpdatingForm";
+import modalStyle from "../modals/style-modal";
+import UpdatedItem from "../profile/UpdatedItem";
+import ErrorUpdateProfileForm from "../profile/ErrorUpdateProfileForm";
 
 const RegistrationForm = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
+  const [hasErrors, setErrors] = useState("");
+  const { t } = useTranslation();
+
   const {
     register,
     handleSubmit,
     getValues,
     formState: { errors },
-  } = useForm(); //mode:"onBlur"
+  } = useForm();
 
   async function addUser(uid, email, username, password) {
     try {
@@ -28,31 +37,53 @@ const RegistrationForm = (props) => {
           position: "",
         }
       );
-      console.log(response);
     } catch (error) {
-      console.log(error);
+      setErrors(error);
     }
   }
 
-  // const onErrors = (errors) => console.error(errors);
   const handleRegistration = (data, event) => {
     event.preventDefault();
+    setIsLoading(true);
     // Create a new user with email and password using firebase
     createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((res) => {
         addUser(res.user.uid, data.email, data.username, data.password);
-        props.closeModalOnSubmit();
+        setIsLoading(false);
+        setIsUpdated(true);
       })
       .catch((err) => {
-        //todo set error
+        setErrors(err);
       });
   };
 
+  if (hasErrors) {
+    return (
+      <Box sx={modalStyle}>
+        <ErrorUpdateProfileForm message={hasErrors} />
+      </Box>
+    );
+  }
+
+  if (isUpdated) {
+    return (
+      <Box sx={modalStyle}>
+        <UpdatedItem />
+      </Box>
+    );
+  }
+  if (isLoading) {
+    return (
+      <Box sx={modalStyle}>
+        <UpdatingForm />
+      </Box>
+    );
+  }
   return (
     <div>
       <form onSubmit={handleSubmit(handleRegistration)} style={formStyle}>
-        <Typography variant="h4" component="h1" color="myFont" align="center">
-          Sign up
+        <Typography variant="h4" component="h1" color="myFont">
+          {t("register.part1")}
         </Typography>
         <TextField
           label="Email"
@@ -70,16 +101,16 @@ const RegistrationForm = (props) => {
             },
           }}
           {...register("email", {
-            required: "Please Enter Your Email",
+            required: t("register.part2"),
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Please Enter A Valid Email!",
+              message: t("register.part3"),
             },
           })}
         />
 
         <TextField
-          label="Username"
+          label={t("register.part4")}
           variant="filled"
           size="small"
           margin="normal"
@@ -93,11 +124,11 @@ const RegistrationForm = (props) => {
             },
           }}
           {...register("username", {
-            required: "Please Enter Your Username",
+            required: t("register.part5"),
             pattern: {
               value:
                 /^(?=.{2,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/i,
-              message: "Please Enter A Valid Username!",
+              message: t("register.part6"),
             },
           })}
         />
@@ -118,16 +149,16 @@ const RegistrationForm = (props) => {
             },
           }}
           {...register("password", {
-            required: "Please Enter Your Password!",
+            required: t("register.part7"),
             minLength: {
               value: 6,
-              message: "Password must be at least 6 characters long",
+              message: t("register.part8"),
             },
           })}
         />
 
         <TextField
-          label="Confirm Password"
+          label={t("register.part9")}
           variant="filled"
           size="small"
           margin="normal"
@@ -144,17 +175,17 @@ const RegistrationForm = (props) => {
             },
           }}
           {...register("confirmPassword", {
-            required: "Please Enter Your Password!",
+            required: t("register.part7"),
             validate: (match) => {
               const password = getValues("password");
-              return match === password || "Passwords should match!";
+              return match === password || t("register.part10");
             },
           })}
         />
+
         <Button
           type="submit"
           variant="contained"
-          size="medium"
           sx={{
             color: "#E6E7E8",
             fontWeight: "bold",
@@ -166,7 +197,7 @@ const RegistrationForm = (props) => {
             },
           }}
         >
-          Submit
+          {t("register.part11")}
         </Button>
       </form>
     </div>
