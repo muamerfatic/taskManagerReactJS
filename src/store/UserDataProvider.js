@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 const UserProvider = (props) => {
   const [tasks, setTasks] = useState([]);
   const [myTasks, setMyTasks] = useState([]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,6 +16,73 @@ const UserProvider = (props) => {
   const [userEmail, setUserEmail] = useState("");
   const [userBirthday, setUserBirthday] = useState("");
   const [userPosition, setUserPosition] = useState("");
+
+  const getUser = useCallback(async () => {
+    // async function getUser() {
+    try {
+      const auth = getAuth();
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setUserUID(user.uid);
+        } else {
+          // User is signed out
+        }
+      });
+
+      const response = await axios.get(
+        myFirebaseUrl + "users/" + userUID + ".json"
+      );
+      const data = response.data;
+      setUserEmail(data.email);
+      setUserUsername(data.username);
+      setUserPosition(data.position);
+      setUserBirthday(data.birthday);
+
+      //dio za taskove...
+      setIsLoading(true);
+
+      const responseTitles = await axios.get(myFirebaseUrl + "tasks.json");
+      if (responseTitles.statusText !== "OK") {
+        throw new Error("Something went wrong: " + responseTitles.statusText);
+      }
+
+      const titles = await responseTitles.data;
+      const allTasks = [];
+      const tasksForThisUser = [];
+      //za svaki title of task, izvadi creatora i uporedi jel to taj
+      for (const title in titles) {
+        const responseTask = await axios.get(
+          myFirebaseUrl + "tasks/" + title + ".json"
+        );
+
+        if (responseTask.statusText !== "OK") {
+          throw new Error("Something went wrong: " + responseTask.statusText);
+        }
+        const task = await responseTask.data;
+        allTasks.push(task); //jer ovdje cuvamo sve taskove...
+
+        if (task.assignedUser === userEmail) {
+          tasksForThisUser.push(task); //cuvamo samo koji su assigned ovom useru. Koji ce biti dodani u MyTasks
+        }
+      }
+      setTasks(allTasks);
+      setMyTasks(tasksForThisUser);
+
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [userUID, userEmail]);
+
+  useEffect(() => {
+    getUser();
+    // fetchTasksHandler();
+  }, [getUser]);
+
+  const loadingHandler = () => {
+    setIsLoading(!isLoading);
+  };
+
   const addBirthdayHandler = (newBirthday) => {
     setUserBirthday(newBirthday);
   };
@@ -72,6 +140,7 @@ const UserProvider = (props) => {
         break;
       }
     }
+
     //ako je tek dodan nema potrebe ici ga traziti ovdje.
     if (!addedInMyTask) {
       for (const counter in tempMyTasks) {
@@ -89,73 +158,6 @@ const UserProvider = (props) => {
     setMyTasks(tempMyTasks);
   };
 
-  const getUser = useCallback(async () => {
-    // async function getUser() {
-    try {
-      const auth = getAuth();
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setUserUID(user.uid);
-        } else {
-          // User is signed out
-        }
-      });
-
-      const response = await axios.get(
-        myFirebaseUrl + "users/" + userUID + ".json"
-      );
-      const data = response.data;
-      setUserEmail(data.email);
-      setUserUsername(data.username);
-      setUserPosition(data.position);
-      setUserBirthday(data.birthday);
-
-      //dio za taskove...
-      setIsLoading(true);
-
-      const responseTitles = await axios.get(myFirebaseUrl + "tasks.json");
-      if (responseTitles.statusText !== "OK") {
-        throw new Error("Something went wrong: " + responseTitles.statusText);
-      }
-
-      const titles = await responseTitles.data;
-      const allTasks = [];
-      const tasksForThisUser = [];
-      //za svaki title of task, izvadi creatora i uporedi jel to taj
-      for (const title in titles) {
-        const responseTask = await axios.get(
-          myFirebaseUrl + "tasks/" + title + ".json"
-        );
-
-        if (responseTask.statusText !== "OK") {
-          throw new Error("Something went wrong: " + responseTask.statusText);
-        }
-        const task = await responseTask.data;
-
-        allTasks.push(task); //jer ovdje cuvamo sve taskove...
-
-        if (task.assignedUser === userEmail) {
-          tasksForThisUser.push(task); //cuvamo samo koji su assigned ovom useru.
-        }
-      }
-      setTasks(allTasks);
-      setMyTasks(tasksForThisUser);
-
-      setIsLoading(false);
-    } catch (error) {
-      console.log(error);
-    }
-    // }
-  }, [userUID, userEmail]);
-
-  useEffect(() => {
-    getUser();
-    // fetchTasksHandler();
-  }, [getUser]);
-
-  const loadingHandler = () => {
-    setIsLoading(!isLoading);
-  };
   const userDataContextValue = {
     tasks,
     error,
@@ -164,10 +166,8 @@ const UserProvider = (props) => {
     loadingHandler,
     addTask: addTaskHandler,
     deleteTask: deleteTaskHandler,
-
     updateTask: updateTaskHandler,
-    // fetchTasks: fetchTasksHandler,
-    // getMyTasks,
+    //
     userUID,
     userUsername,
     userEmail,
