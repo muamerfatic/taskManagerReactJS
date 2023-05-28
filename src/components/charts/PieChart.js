@@ -10,7 +10,6 @@ import { Pie } from "react-chartjs-2";
 
 Chart.register(CategoryScale);
 const PieChart = (props) => {
-  const ctxUserData = useContext(UserDataContext);
   
   return (
     <>

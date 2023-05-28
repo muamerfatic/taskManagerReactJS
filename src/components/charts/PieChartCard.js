@@ -27,7 +27,7 @@ const PieChartCard = () => {
     ],
   });
 
-  const fja =  ()=>{
+  const fetchingChartData =  ()=>{
     let tempArrayOfLoggedTime = [];
       for (const counter in ctxUserData.myTasks) {
         let counterOfWorkingHours = 0;
@@ -59,18 +59,19 @@ const PieChartCard = () => {
         ],
       });
     }
+
   useEffect(() => {
     setIsLoading(true);
-    fja()
+    fetchingChartData()
     setIsLoading(false);
-  }, []);
+  }, [ctxUserData.myTasks]);
   
   if (isLoading) {
     <Box sx={modalStyle}>
       <UpdatingForm />
     </Box>
   }
-
+console.log(chartData)
   return (
     <Box
         sx={{
@@ -82,17 +83,7 @@ const PieChartCard = () => {
           borderRadius: "12px",
         }}
       >
-        <Pie
-        data={chartData}
-        options={{
-          plugins: {
-            title: {
-              display: true,
-              text: "Logged Time For Each Task",
-            },
-          },
-        }}
-      />
+        <PieChart chartData={chartData}/>
       </Box>
   );
 };
