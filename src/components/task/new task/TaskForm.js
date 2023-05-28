@@ -111,6 +111,7 @@ const TaskForm = () => {
         startDate: startDateString,
         dueDate: dueDateString,
         assignedUser: data.assignedUser,
+        loggedTime:'',//it will be array
       };
       const response = await axios.patch(
         myFirebaseUrl + "tasks/" + data.title + ".json",
@@ -142,7 +143,7 @@ const TaskForm = () => {
   if (isUpdated) {
     return (
       <Box sx={modalStyle}>
-        <UpdatedItem />
+        <UpdatedItem  message='Task added'/>
         <Button
           variant="contained"
           size="medium"

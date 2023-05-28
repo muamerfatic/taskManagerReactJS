@@ -72,7 +72,7 @@ const UpdateProfileForm = (props) => {
   if (isUpdated) {
     return (
       <Box sx={modalStyle}>
-        <UpdatedItem />
+        <UpdatedItem message='Updating done' />
       </Box>
     );
   }

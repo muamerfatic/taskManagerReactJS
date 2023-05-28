@@ -68,7 +68,7 @@ const RegistrationForm = (props) => {
   if (isUpdated) {
     return (
       <Box sx={modalStyle}>
-        <UpdatedItem />
+        <UpdatedItem message='Registration done' />
       </Box>
     );
   }

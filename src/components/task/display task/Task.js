@@ -3,6 +3,7 @@ import {
   Button,
   Typography,
   Stack,
+  Avatar,
   useMediaQuery,
   Box,
 } from "@mui/material";
@@ -10,19 +11,40 @@ import {
   priorityColorHandler,
   statusColorHandler,
 } from "../new task/TaskFormHelperFunctions";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import ErrorPage from "../../../pages/ErrorPage";
 import modalStyle from "../../modals/style-modal";
 import UpdatingForm from "../../profile/UpdatingForm";
 import UserDataContext from "../../../store/userData-context";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import CompletedTaskModal from "../../modals/CompletedTaskModal";
+
+import updatingDone from "../../../values/pictures/UpdatingDone.png";
+import LogTimeModal from "../../modals/LogTimeModal";
 
 const Task = (props) => {
   const { t } = useTranslation();
   const isTabletOrMobile = useMediaQuery("(max-width: 390px)");
   const navigate = useNavigate();
   const ctxUserData = useContext(UserDataContext);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [showLogTimeModal, setShowLogTimeModal] = useState(false);
+
+  const [isTaskCompleted, setIsTaskCompleted] = useState(
+    props.status === "COMPLETED" ? true : false
+  );
+  const [completingDone, setCompletingDone] = useState(false);
+
+  const isUserAuthorizedToDeleteOrEdit =
+    ctxUserData.userEmail === props.assignedUser ||
+    ctxUserData.userEmail === props.creator
+      ? false
+      : true;
+
+  const isUserAuthorizedToLogTimeOrCompleteTask =
+    ctxUserData.userEmail === props.assignedUser ? false : true;
 
   const deleteTaskHandler = () => {
     ctxUserData.deleteTask(props.title);
@@ -32,8 +54,24 @@ const Task = (props) => {
     navigate(`/tasks/edit/${props.title}`);
   };
 
+  const completeTaskHandler = () => {
+    setIsLoading(true);
+    ctxUserData.completeTask(props.title);
+    setIsTaskCompleted(true);
+    setCompletingDone(true);
+    setIsLoading(false);
+  };
+
   const taskClickHandler = () => {
     navigate(`/tasks/${props.title}`);
+  };
+
+  const logTimeClickHandler = () => {
+    setShowLogTimeModal(true);
+  };
+
+  const closeLogTimeModal = () => {
+    setShowLogTimeModal(false);
   };
 
   if (ctxUserData.error) {
@@ -44,15 +82,9 @@ const Task = (props) => {
     );
   }
 
-  if (ctxUserData.isLoading) {
+  if (ctxUserData.isLoading || isLoading) {
     return <UpdatingForm />;
   }
-
-  const isUserAuthorizedToDeleteOrEdit =
-    ctxUserData.userEmail === props.assignedUser ||
-    ctxUserData.userEmail === props.creator
-      ? false
-      : true;
 
   return (
     <Grid
@@ -112,14 +144,9 @@ const Task = (props) => {
         >
           <Button
             variant="contained"
-            color="error"
+            // color="error"
             size="small"
-            disabled={
-              ctxUserData.userEmail === props.assignedUser ||
-              ctxUserData.userEmail === props.creator
-                ? false
-                : true
-            }
+            disabled={isUserAuthorizedToDeleteOrEdit || isTaskCompleted}
             onClick={deleteTaskHandler}
             sx={{
               fontWeight: "bold",
@@ -134,8 +161,8 @@ const Task = (props) => {
           </Button>
           <Button
             variant="contained"
-            color="info"
-            disabled={isUserAuthorizedToDeleteOrEdit}
+            // color="info"
+            disabled={isUserAuthorizedToDeleteOrEdit || isTaskCompleted}
             onClick={editTaskHandler}
             size="small"
             sx={{
@@ -151,9 +178,31 @@ const Task = (props) => {
           </Button>
           <Button
             variant="contained"
-            color="success"
+            // color="success"
             size="small"
-            disabled={isUserAuthorizedToDeleteOrEdit}
+            disabled={
+              isUserAuthorizedToLogTimeOrCompleteTask || isTaskCompleted
+            }
+              onClick={logTimeClickHandler}
+            sx={{
+              fontWeight: "bold",
+              borderRadius: "12px",
+              border: "2px solid #E6E7E8",
+              "&:hover": {
+                border: "3px solid #9F4298",
+              },
+            }}
+          >
+            {t("task.logTime")}
+          </Button>
+          <Button
+            variant="contained"
+            // color="success"
+            size="small"
+            disabled={
+              isUserAuthorizedToLogTimeOrCompleteTask || isTaskCompleted
+            }
+            onClick={completeTaskHandler}
             sx={{
               fontWeight: "bold",
               borderRadius: "12px",
@@ -168,10 +217,7 @@ const Task = (props) => {
         </Stack>
       </Grid>
       <Grid item xs={12} md={6} onClick={taskClickHandler}>
-        <Typography
-          variant="span"
-          sx={{ fontWeight: "bolder" }}
-        >
+        <Typography variant="span" sx={{ fontWeight: "bolder" }}>
           {t("task.priority")}
           <Typography
             variant=""
@@ -183,6 +229,34 @@ const Task = (props) => {
           </Typography>
         </Typography>
       </Grid>
+      {isTaskCompleted ? (
+        <>
+          <Stack
+            direction="raw"
+            spacing={2}
+            marginTop="2rem"
+            alignItems={"center"}
+          >
+            <Typography
+              variant="p"
+              component="p"
+              color="green"
+              sx={{ fontWeight: "bold", marginRight: "0.5rem" }}
+            >
+              TASK IS COMPLETED
+            </Typography>
+
+            <Avatar src={updatingDone} alt="Completed" />
+          </Stack>
+        </>
+      ) : (
+        ""
+      )}
+      {completingDone ? <CompletedTaskModal /> : ""}
+      {showLogTimeModal?<LogTimeModal
+          task={props.task}
+          showThisLogTimeModal={showLogTimeModal}
+          closeThisLogTimeModal={closeLogTimeModal}/>:''}
     </Grid>
   );
 };

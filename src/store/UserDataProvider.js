@@ -18,6 +18,7 @@ const UserProvider = (props) => {
   const [userPosition, setUserPosition] = useState("");
 
   const getUser = useCallback(async () => {
+     setIsLoading(true)
     // async function getUser() {
     try {
       const auth = getAuth();
@@ -65,7 +66,7 @@ const UserProvider = (props) => {
           tasksForThisUser.push(task); //cuvamo samo koji su assigned ovom useru. Koji ce biti dodani u MyTasks
         }
       }
-      setTasks(allTasks);
+     setTasks(allTasks);
       setMyTasks(tasksForThisUser);
 
       setIsLoading(false);
@@ -126,6 +127,28 @@ const UserProvider = (props) => {
     setTasks(tasksArray);
   };
 
+  const completeTaskHandler = async (taskTitleForComplete) => {
+    setIsLoading(true);
+    const tasksArray = [...tasks];
+    for (const task in tasksArray) {
+      if (tasksArray.at(task).title === taskTitleForComplete) {
+        console.log(taskTitleForComplete);
+        tasksArray.at(task).status = "COMPLETED";
+        console.log(myFirebaseUrl + "tasks/" + taskTitleForComplete + ".json");
+        const response = axios
+          .patch(
+            myFirebaseUrl + "tasks/" + taskTitleForComplete + ".json",
+            tasksArray.at(task)
+          )
+          .catch((error) => {
+            setError(error);
+          });
+      }
+    }
+    setIsLoading(false);
+    setTasks(tasksArray);
+  };
+
   const updateTaskHandler = (taskForUpdate) => {
     const tempTasks = [...tasks];
     const tempMyTasks = [...myTasks];
@@ -158,15 +181,28 @@ const UserProvider = (props) => {
     setMyTasks(tempMyTasks);
   };
 
+  const loggedTimeHandler = (loggedTask) => {
+    const tempMyTasks = [...myTasks];
+    for (const counter in tempMyTasks) {
+      if (tempMyTasks.at(counter).title === loggedTask.title) {
+        tempMyTasks[counter] = loggedTask;
+        break;
+      }
+      setMyTasks(tempMyTasks);
+    }
+  };
+
   const userDataContextValue = {
     tasks,
     error,
     isLoading,
     myTasks,
-    loadingHandler,
+    setCtxLoading: loadingHandler,
     addTask: addTaskHandler,
     deleteTask: deleteTaskHandler,
     updateTask: updateTaskHandler,
+    completeTask: completeTaskHandler,
+    logTaskTime: loggedTimeHandler,
     //
     userUID,
     userUsername,

@@ -108,7 +108,6 @@ const Root = () => {
         <RegistrationModal
           showThisRegModal={showRegModal}
           closeThisRegModal={closeRegModal}
-          closeModalOnSubmit={closeRegModal}
         />
       ) : null}
       <Box>

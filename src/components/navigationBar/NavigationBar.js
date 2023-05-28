@@ -42,6 +42,7 @@ const NavigationBar = () => {
       .then((res) => {
         removeAuthToken();
         navigate("/");
+        window.location.reload(true);
       })
       .catch((err) => {
         //there shouldn't every be an error from firebase but just in case

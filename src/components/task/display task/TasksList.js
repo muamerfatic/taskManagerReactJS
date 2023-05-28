@@ -53,6 +53,7 @@ const TasksList = (props) => {
       {taskFiltered.map((task) => (
         <Task
           key={task.title}
+          task={task}
           title={task.title}
           creator={task.creator}
           assignedUser={task.assignedUser}

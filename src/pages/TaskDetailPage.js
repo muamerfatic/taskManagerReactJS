@@ -7,6 +7,7 @@ import ErrorPage from "./ErrorPage";
 import UpdatingForm from "../components/profile/UpdatingForm";
 import modalStyle from "../components/modals/style-modal";
 import { Box } from "@mui/material";
+import LoggedTimeDetailCard from "../components/mytasks/logTime/LoggedTimeDetailCard";
 const TaskDetailPage = () => {
   const params = useParams();
   const ctxUserData = useContext(UserDataContext);
@@ -51,6 +52,7 @@ const TaskDetailPage = () => {
     <>
       <NavigationBar />
       <TaskDetailCard title={params.taskTitle} deleteTask={deleteTask} />
+      <LoggedTimeDetailCard title={params.taskTitle}/>
     </>
   );
 };

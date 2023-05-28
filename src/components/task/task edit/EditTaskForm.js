@@ -169,6 +169,7 @@ const EditTaskForm = (props) => {
         startDate: startDateString,
         dueDate: dueDateString,
         assignedUser,
+        loggedTime:task.loggedTime
       };
       const response = await axios.patch(
         myFirebaseUrl + "tasks/" + props.title + ".json",
@@ -207,7 +208,7 @@ const EditTaskForm = (props) => {
   if (isUpdated) {
     return (
       <Box sx={modalStyle}>
-        <UpdatedItem />
+        <UpdatedItem message='Editing done' />
         <Button
           variant="contained"
           size="medium"
